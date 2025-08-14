@@ -1,0 +1,19 @@
+# TWRP Configuration Flags
+# Minimal setup for stable recovery boot
+
+# Essential Boot Partitions
+/boot          emmc    /dev/block/by-name/boot        flags=slotselect;display="Boot";backup=1;flashimg=1
+/dtbo          emmc    /dev/block/by-name/dtbo        flags=slotselect;display="Dtbo";backup=1;flashimg=1
+
+# Persistent Storage
+/persist       ext4    /dev/block/by-name/persist     flags=display="Persist";backup=1
+
+# Firmware (Consolidated)
+/firmware      emmc    /dev/block/by-name/audio_dsp   flags=display="Firmware";backup=1
+
+# Data & Cache
+/data          auto    /dev/block/by-name/userdata    flags=display="Data";storage;canbewiped
+/cache         ext4    /dev/block/by-name/cache       flags=display="Cache";canbewiped
+
+# USB Storage
+/usb-otg       auto    /dev/block/sdd1                flags=display="USB-OTG";storage;removable;wipeingui

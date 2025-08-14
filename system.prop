@@ -1,0 +1,15 @@
+# device/xiaomi/ares/system.prop
+ro.postinstall.fstab.prefix=/system
+ro.crypto.volume.filenames_mode=aes-256-cts
+ro.sys.usb.storage.type=mtp
+
+# Basic properties
+ro.twrp.build=1
+ro.hardware.keystore=mt6893  # Hardcoded platform name
+
+# TWRP-Specific (Debugging/Functionality)
+persist.sys.usb.config=adb
+persist.service.adb.enable=1
+debug.sf.latch_unsignaled=1
+
+# REMOVED ALL SECURITY PATCH REFERENCES

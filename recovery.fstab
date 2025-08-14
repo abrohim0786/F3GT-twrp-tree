@@ -1,0 +1,32 @@
+# Android fstab file for TWRP Recovery
+# Simplified configuration - no encryption support
+
+# System Partitions (Logical/Super)
+/system        ext4    ro,barrier=1,noatime    wait,logical,first_stage_mount,slotselect
+/system_ext    ext4    ro,barrier=1,noatime    wait,logical,first_stage_mount,slotselect
+/product       ext4    ro,barrier=1,noatime    wait,logical,first_stage_mount,slotselect
+/vendor        ext4    ro,barrier=1,noatime    wait,logical,first_stage_mount,slotselect
+/odm           ext4    ro,barrier=1,noatime    wait,logical,first_stage_mount,slotselect
+
+# Critical Partitions
+/boot          emmc    /dev/block/by-name/boot     flags=display="Boot";backup=1;flashimg=1;slotselect
+/dtbo          emmc    /dev/block/by-name/dtbo     flags=display="Dtbo";backup=1;flashimg=1;slotselect
+
+# Data and Metadata
+/data          f2fs    /dev/block/by-name/userdata noatime,nosuid,nodev,noauto_da_alloc,fsync_mode=nobarrier  wait,check,formattable,length=-16384
+/metadata      ext4    /dev/block/by-name/metadata noatime,nosuid,nodev,discard                                wait,check,formattable
+
+# Persistent
+/persist       ext4    /dev/block/by-name/persist  noatime,nosuid,nodev                                        wait,notrim
+
+# Misc
+/misc          emmc    /dev/block/by-name/misc     defaults                                                    defaults
+
+# Cache
+/cache         ext4    /dev/block/by-name/cache    noatime,nosuid,nodev,discard                                wait,formattable
+
+# USB OTG
+/usb-otg       auto    /dev/block/sdd1             defaults                                                    voldmanaged=usb:auto
+
+# Fallback for super devices
+super          emmc    /dev/block/by-name/super     defaults                                                    recoveryonly
