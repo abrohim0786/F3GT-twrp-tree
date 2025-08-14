@@ -4,11 +4,11 @@ vendor      /vendor         ext4    ro      wait,slotselect,logical
 product     /product        ext4    ro      wait,slotselect,logical
 system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 
-# Metadata (optional, no decrypt)
-metadata    /metadata       ext4    wait,check,formattable
+# Metadata partition
+/dev/block/by-name/metadata /metadata ext4 wait,check,formattable
 
-# /data — no encryption
-/dev/block/by-name/userdata /data  f2fs  wait,check,formattable,quota,reservedsize=128m
+# Encrypted /data with metadata decryption
+/dev/block/by-name/userdata /data f2fs fileencryption=metadata,keydirectory=/metadata/vold/metadata_encryption,quota,reservedsize=128m,latemount,wait,check,formattable
 
 # Cache and vendor partitions
 /dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
