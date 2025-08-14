@@ -33,34 +33,28 @@ AB_OTA_UPDATER := false
 #    update_engine_sideload \
 #    update_verifier
 
-# Boot control HAL (essential for recovery)
+# Boot control HAL
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-impl.recovery \
-    android.hardware.boot@1.2-impl \
-    bootctrl.$(TARGET_BOARD_PLATFORM).recovery
+    android.hardware.boot@1.2-impl
 
-# Fastbootd
+# fastbootd
 PRODUCT_PACKAGES += \
-    fastbootd \
     android.hardware.fastboot@1.0-impl-mock
 
-# Health HAL
+# Heath hal
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service \
-    android.hardware.health@2.1-impl.recovery
+    android.hardware.health@2.1-impl
     
-# Critical libraries for recovery
-PRODUCT_PACKAGES += \
-    libion \
-    libxml2 \
-    libbase \
-    libz
-
-# Keymaster libraries (required even without crypto)
-PRODUCT_PACKAGES += \
+# Additional target Libraries
+TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
-    libpuresoftkeymasterdevice \
-    libkeymaster4support
+    libpuresoftkeymasterdevice
+
+TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
