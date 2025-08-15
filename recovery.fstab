@@ -1,26 +1,36 @@
-# ===== Dynamic logical partitions (mapped via dm devices) =====
-system        /system         ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-1
-vendor        /vendor         ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-0
-product       /product        ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-2
-system_ext    /system_ext     ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-3
-odm           /odm            ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-4
+# Android fstab file.
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
-# ===== Physical partitions =====
-boot          /boot           emmc     defaults                                    /dev/block/by-name/boot
-vbmeta        /vbmeta         emmc     defaults                                    /dev/block/by-name/vbmeta
-vbmeta_system /vbmeta_system  emmc     defaults                                    /dev/block/by-name/vbmeta_system
-vbmeta_vendor /vbmeta_vendor  emmc     defaults                                    /dev/block/by-name/vbmeta_vendor
+# TODO: Add 'check' as fs_mgr_flags with data partition.
+# Currently we don’t have e2fsck compiled. So fs check would fail.
 
-# ===== Metadata =====
-metadata      /metadata       ext4     wait,check,formattable                      /dev/block/by-name/metadata
+#<src>                                         <mnt_point>     <type>   <mnt_flags and options>                                                                 <fs_mgr_flags>
 
-# ===== Userdata (FBE + ICE + fsverity) =====
-userdata      /data           f2fs     wait,check,quota,formattable,reservedsize=256M,encryptable=footer,fileencryption=ice:wrappedkey_v0:aes-256-cts:aes-256-xts:adiantum,metadata_encryption=hardware,keydirectory=/metadata/vold/metadata_encryption   /dev/block/dm-47
+# System partitions
+/dev/block/dm-1                                /system         ext4     ro                                                                                      wait,logical,slotselect
+/dev/block/dm-1                                /system         erofs     ro                                                                                     wait,logical,slotselect
+/dev/block/dm-1                                /system_ext     ext4     ro                                                                                      wait,logical,slotselect
+/dev/block/dm-1                                /system_ext     erofs     ro                                                                                     wait,logical,slotselect
+/dev/block/dm-0                                /product        ext4     ro                                                                                      wait,logical,slotselect
+/dev/block/dm-0                                /product        erofs     ro                                                                                     wait,logical,slotselect
+/dev/block/dm-0                                /vendor         ext4     ro                                                                                      wait,logical,slotselect
+/dev/block/dm-0                                /vendor         erofs     ro                                                                                     wait,logical,slotselect
+/dev/block/dm-0                                /mi_ext         ext4     ro                                                                                      wait,logical,slotselect
+/dev/block/dm-0                                /mi_ext         erofs    ro                                                                                      wait,logical,slotselect
 
-# ===== Vendor-specific mounts =====
-protect1      /mnt/vendor/protect_f   ext4     wait                                /dev/block/by-name/protect1
-protect2      /mnt/vendor/protect_s   ext4     wait                                /dev/block/by-name/protect2
-nvdata        /mnt/vendor/nvdata      ext4     wait                                /dev/block/by-name/nvdata
-nvcfg         /mnt/vendor/nvcfg       ext4     wait                                /dev/block/by-name/nvcfg
-persist       /mnt/vendor/persist     ext4     wait                                /dev/block/by-name/persist
-rescue        /cache                  ext4     wait                                /dev/block/by-name/rescue
+# Metadata
+/dev/block/by-name/metadata                    /metadata       ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
+
+# Userdata
+/dev/block/dm-47                               /data           f2fs     noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption
+
+# Misc
+/dev/block/by-name/misc                        /misc           emmc     defaults                                                                                defaults
+
+# Persist and vendor extras
+/dev/block/sdc14                               /persist        ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
+/dev/block/sdc15                               /protect_f      ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
+/dev/block/sdc16                               /protect_s      ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
+/dev/block/sdc5                                /nvcfg          ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
+/dev/block/sdc6                                /nvdata         ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
