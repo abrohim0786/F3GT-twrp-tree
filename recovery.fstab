@@ -1,28 +1,21 @@
-# Dynamic partitions
-system      /system         ext4    ro      wait,slotselect,logical
-vendor      /vendor         ext4    ro      wait,slotselect,logical
-product     /product        ext4    ro      wait,slotselect,logical
-system_ext  /system_ext     ext4    ro      wait,slotselect,logical
+# ===== Dynamic logical partitions (EROFS or EXT4, A/B) =====
+system        /system         ext4     ro                                                              wait,logical,slotselect
+system        /system         erofs     ro                                                              wait,logical,slotselect
+system_ext    /system_ext     ext4     ro                                                              wait,logical,slotselect
+system_ext    /system_ext     erofs     ro                                                              wait,logical,slotselect
+product       /product        ext4     ro                                                              wait,logical,slotselect
+product       /product        erofs     ro                                                              wait,logical,slotselect
+vendor        /vendor         ext4     ro                                                              wait,logical,slotselect
+vendor        /vendor         erofs     ro                                                              wait,logical,slotselect
+odm           /odm            ext4     ro                                                              wait,logical,slotselect
+odm           /odm            erofs     ro                                                              wait,logical,slotselect
 
-# Metadata partition
-/dev/block/by-name/metadata /metadata ext4 wait,check,formattable
+# ===== Physical partitions (raw blocks) =====
+boot          /boot           emmc           defaults                         /dev/block/by-name/boot
+vbmeta        /vbmeta         emmc           defaults                         /dev/block/by-name/vbmeta
+vbmeta_system /vbmeta_system  emmc           defaults                         /dev/block/by-name/vbmeta_system
+vbmeta_vendor /vbmeta_vendor  emmc           defaults                         /dev/block/by-name/vbmeta_vendor
 
-# Encrypted /data with metadata decryption
-/dev/block/by-name/userdata /data f2fs fileencryption=metadata,keydirectory=/metadata/vold/metadata_encryption,quota,reservedsize=128m,latemount,wait,check,formattable
-
-# Cache and vendor partitions
-/dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
-/dev/block/by-name/protect1     /mnt/vendor/protect_f ext4  wait,check,formattable
-/dev/block/by-name/protect2     /mnt/vendor/protect_s ext4  wait,check,formattable
-/dev/block/by-name/nvdata       /mnt/vendor/nvdata     ext4  wait,check,formattable
-/dev/block/by-name/nvcfg        /mnt/vendor/nvcfg      ext4  wait,check,formattable
-/dev/block/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
-
-# Bind mount for mi_ext
-/dev/block/by-name/mi_ext       /mnt/vendor/mi_ext     ext4  wait,nofail
-/mnt/vendor/mi_ext              /mi_ext                none  bind wait,nofail
-
-# Boot and AVB partitions
-/dev/block/by-name/boot         /boot                  emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  defaults slotselect,nofail
+# ===== Metadata & Data =====
+metadata      /metadata       ext4           wait,check,formattable           /dev/block/by-name/metadata
+userdata      /data           f2fs           wait,check,quota,formattable,encryptable=footer,reservedsize=256M  /dev/block/by-name/userdata
