@@ -1,23 +1,26 @@
-# ===== Dynamic logical partitions (EROFS or EXT4, A/B) =====
-system        /system         ext4     ro                                                              wait,logical,slotselect
-system        /system         erofs     ro                                                              wait,logical,slotselect
-system_ext    /system_ext     ext4     ro                                                              wait,logical,slotselect
-system_ext    /system_ext     erofs     ro                                                              wait,logical,slotselect
-product       /product        ext4     ro                                                              wait,logical,slotselect
-product       /product        erofs     ro                                                              wait,logical,slotselect
-vendor        /vendor         ext4     ro                                                              wait,logical,slotselect
-vendor        /vendor         erofs     ro                                                              wait,logical,slotselect
-odm           /odm            ext4     ro                                                              wait,logical,slotselect
-odm           /odm            erofs     ro                                                              wait,logical,slotselect
+# ===== Dynamic logical partitions (mapped via dm devices) =====
+system        /system         ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-1
+vendor        /vendor         ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-0
+product       /product        ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-2
+system_ext    /system_ext     ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-3
+odm           /odm            ext4     ro      wait,first_stage_mount,slotselect   /dev/block/dm-4
 
-# ===== Physical partitions (raw blocks) =====
-boot          /boot           emmc           defaults                         /dev/block/by-name/boot
-vbmeta        /vbmeta         emmc           defaults                         /dev/block/by-name/vbmeta
-vbmeta_system /vbmeta_system  emmc           defaults                         /dev/block/by-name/vbmeta_system
-vbmeta_vendor /vbmeta_vendor  emmc           defaults                         /dev/block/by-name/vbmeta_vendor
+# ===== Physical partitions =====
+boot          /boot           emmc     defaults                                    /dev/block/by-name/boot
+vbmeta        /vbmeta         emmc     defaults                                    /dev/block/by-name/vbmeta
+vbmeta_system /vbmeta_system  emmc     defaults                                    /dev/block/by-name/vbmeta_system
+vbmeta_vendor /vbmeta_vendor  emmc     defaults                                    /dev/block/by-name/vbmeta_vendor
 
 # ===== Metadata =====
-metadata      /metadata       ext4           wait,check,formattable           /dev/block/by-name/metadata
+metadata      /metadata       ext4     wait,check,formattable                      /dev/block/by-name/metadata
 
-# ===== Userdata (multi-encryption support) =====
-userdata      /data           f2fs           wait,check,quota,formattable,reservedsize=256M,encryptable=footer,fileencryption=ice:wrappedkey_v0:aes-256-cts:aes-256-xts:adiantum,metadata_encryption=hardware,keydirectory=/metadata/vold/metadata_encryption   /dev/block/by-name/userdata
+# ===== Userdata (FBE + ICE + fsverity) =====
+userdata      /data           f2fs     wait,check,quota,formattable,reservedsize=256M,encryptable=footer,fileencryption=ice:wrappedkey_v0:aes-256-cts:aes-256-xts:adiantum,metadata_encryption=hardware,keydirectory=/metadata/vold/metadata_encryption   /dev/block/dm-47
+
+# ===== Vendor-specific mounts =====
+protect1      /mnt/vendor/protect_f   ext4     wait                                /dev/block/by-name/protect1
+protect2      /mnt/vendor/protect_s   ext4     wait                                /dev/block/by-name/protect2
+nvdata        /mnt/vendor/nvdata      ext4     wait                                /dev/block/by-name/nvdata
+nvcfg         /mnt/vendor/nvcfg       ext4     wait                                /dev/block/by-name/nvcfg
+persist       /mnt/vendor/persist     ext4     wait                                /dev/block/by-name/persist
+rescue        /cache                  ext4     wait                                /dev/block/by-name/rescue
