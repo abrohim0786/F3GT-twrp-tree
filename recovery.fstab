@@ -16,6 +16,8 @@ vbmeta        /vbmeta         emmc           defaults                         /d
 vbmeta_system /vbmeta_system  emmc           defaults                         /dev/block/by-name/vbmeta_system
 vbmeta_vendor /vbmeta_vendor  emmc           defaults                         /dev/block/by-name/vbmeta_vendor
 
-# ===== Metadata & Data =====
+# ===== Metadata =====
 metadata      /metadata       ext4           wait,check,formattable           /dev/block/by-name/metadata
-userdata      /data           f2fs           wait,check,quota,formattable,encryptable=footer,reservedsize=256M  /dev/block/by-name/userdata
+
+# ===== Userdata (multi-encryption support) =====
+userdata      /data           f2fs           wait,check,quota,formattable,reservedsize=256M,encryptable=footer,fileencryption=ice:wrappedkey_v0:aes-256-cts:aes-256-xts:adiantum,metadata_encryption=hardware,keydirectory=/metadata/vold/metadata_encryption   /dev/block/by-name/userdata
