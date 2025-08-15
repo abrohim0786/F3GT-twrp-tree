@@ -48,8 +48,19 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl
     
 # Additional target Libraries
-TARGET_RECOVERY_DEVICE_MODULES += libkeymaster4 libpuresoftkeymasterdevice
-TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += libkeymaster4.so libpuresoftkeymasterdevice.so
+TARGET_RECOVERY_DEVICE_MODULES += \
+    libsoftkeymasterdevice \
+    libkeymaster_messages \
+    libkeystore_binder \
+    libhardware \
+    libcutils
+
+TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libsoftkeymasterdevice.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster_messages.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore_binder.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhardware.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libcutils.so
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
