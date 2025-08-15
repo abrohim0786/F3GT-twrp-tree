@@ -49,7 +49,7 @@ TARGET_OTA_ASSERT_DEVICE := ares,aresin
 
 # Kernel
 BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2
-BOARD_KERNEL_CMDLINE := console=tty0
+BOARD_KERNEL_CMDLINE += androidboot.force_normal_boot=1
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
@@ -59,11 +59,6 @@ BOARD_KERNEL_PAGESIZE := 2048
 BOARD_RAMDISK_OFFSET := 0x11088000
 BOARD_KERNEL_TAGS_OFFSET := 0x07c08000
 BOARD_DTB_OFFSET := 0x07c08000
-
-# Add force_normal_boot
-ifeq ($(TARGET_BUILD_VARIANT),boot)
-BOARD_KERNEL_CMDLINE += androidboot.force_normal_boot=1
-endif
 
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
