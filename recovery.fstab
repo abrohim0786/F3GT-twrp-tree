@@ -1,36 +1,24 @@
-# Android fstab file.
-# The filesystem that contains the filesystem checker binary (typically /system) cannot
-# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
+# Patched recovery.fstab for Poco F3 GT (ares)
+# Supports dynamic partitions, FBE decryption with ICE, and metadata keydirectory
 
-# TODO: Add 'check' as fs_mgr_flags with data partition.
-# Currently we don’t have e2fsck compiled. So fs check would fail.
+/system        /dev/block/mapper/system_a        ext4    flags=wait,slotselect
+/system_ext    /dev/block/mapper/system_ext_a    ext4    flags=wait,slotselect
+/product       /dev/block/mapper/product_a       ext4    flags=wait,slotselect
+/vendor        /dev/block/mapper/vendor_a        ext4    flags=wait,slotselect
+/data          /dev/block/mapper/userdata        f2fs    flags=encryptable=footer,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware,slotselect
+/metadata      /dev/block/bootdevice/by-name/metadata ext4 flags=wait
+/cache         /dev/block/bootdevice/by-name/cache    ext4 flags=wait
+/misc          /dev/block/bootdevice/by-name/misc     ext4 flags=wait
+/persist       /dev/block/bootdevice/by-name/persist  ext4 flags=wait
+/protect_f     /dev/block/bootdevice/by-name/protect_f ext4 flags=wait
+/protect_s     /dev/block/bootdevice/by-name/protect_s ext4 flags=wait
+/nvcfg         /dev/block/bootdevice/by-name/nvcfg    ext4 flags=wait
+/nvdata        /dev/block/bootdevice/by-name/nvdata   ext4 flags=wait
+/odm           /dev/block/mapper/odm_a                ext4 flags=wait,slotselect
 
-#<src>                                         <mnt_point>     <type>   <mnt_flags and options>                                                                 <fs_mgr_flags>
-
-# System partitions
-/dev/block/dm-1                                /system         ext4     ro                                                                                      wait,logical,slotselect
-/dev/block/dm-1                                /system         erofs     ro                                                                                     wait,logical,slotselect
-/dev/block/dm-1                                /system_ext     ext4     ro                                                                                      wait,logical,slotselect
-/dev/block/dm-1                                /system_ext     erofs     ro                                                                                     wait,logical,slotselect
-/dev/block/dm-0                                /product        ext4     ro                                                                                      wait,logical,slotselect
-/dev/block/dm-0                                /product        erofs     ro                                                                                     wait,logical,slotselect
-/dev/block/dm-0                                /vendor         ext4     ro                                                                                      wait,logical,slotselect
-/dev/block/dm-0                                /vendor         erofs     ro                                                                                     wait,logical,slotselect
-/dev/block/dm-0                                /mi_ext         ext4     ro                                                                                      wait,logical,slotselect
-/dev/block/dm-0                                /mi_ext         erofs    ro                                                                                      wait,logical,slotselect
-
-# Metadata
-/dev/block/by-name/metadata                    /metadata       ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
-
-# Userdata
-/dev/block/dm-47                               /data           f2fs     noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption
-
-# Misc
-/dev/block/by-name/misc                        /misc           emmc     defaults                                                                                defaults
-
-# Persist and vendor extras
-/dev/block/sdc14                               /persist        ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
-/dev/block/sdc15                               /protect_f      ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
-/dev/block/sdc16                               /protect_s      ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
-/dev/block/sdc5                                /nvcfg          ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
-/dev/block/sdc6                                /nvdata         ext4     noatime,nosuid,nodev,discard                                                            wait,check,formattable
+# Optional mount points for vendor overlays
+/mnt/vendor/nvcfg     /dev/block/bootdevice/by-name/nvcfg    ext4 flags=wait
+/mnt/vendor/nvdata    /dev/block/bootdevice/by-name/nvdata   ext4 flags=wait
+/mnt/vendor/persist   /dev/block/bootdevice/by-name/persist  ext4 flags=wait
+/mnt/vendor/protect_f /dev/block/bootdevice/by-name/protect_f ext4 flags=wait
+/mnt/vendor/protect_s /dev/block/bootdevice/by-name/protect_s ext4 flags=wait
