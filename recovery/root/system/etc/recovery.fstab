@@ -1,16 +1,14 @@
 # Dynamic partitions (dual format)
-system_a        /system_root     ext4    ro      wait,logical,slotselect
-system_a        /system_root     erofs   ro      wait,logical,slotselect
-vendor_a        /vendor          ext4    ro      wait,logical,slotselect
-vendor_a        /vendor          erofs   ro      wait,logical,slotselect
-product_a       /product         ext4    ro      wait,logical,slotselect
-product_a       /product         erofs   ro      wait,logical,slotselect
-system_ext_a    /system_ext      ext4    ro      wait,logical,slotselect
-system_ext_a    /system_ext      erofs   ro      wait,logical,slotselect
-mi_ext_a        /mi_ext          ext4    ro      wait,logical,slotselect
-mi_ext_a        /mi_ext          erofs   ro      wait,logical,slotselect
-odm_a           /odm             ext4    ro      wait,logical,slotselect
-odm_a           /odm             erofs   ro      wait,logical,slotselect
+system        /system_root     ext4    ro      wait,logical,slotselect
+system        /system_root     erofs   ro      wait,logical,slotselect
+vendor        /vendor          ext4    ro      wait,logical,slotselect
+vendor        /vendor          erofs   ro      wait,logical,slotselect
+product       /product         ext4    ro      wait,logical,slotselect
+product       /product         erofs   ro      wait,logical,slotselect
+system_ext    /system_ext      ext4    ro      wait,logical,slotselect
+system_ext    /system_ext      erofs   ro      wait,logical,slotselect
+mi_ext        /mi_ext          ext4    ro      wait,logical,slotselect
+mi_ext        /mi_ext          erofs   ro      wait,logical,slotselect
 
 # Super partition
 /dev/block/by-name/super         /super           emmc    defaults    defaults
