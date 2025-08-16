@@ -22,30 +22,51 @@ PRODUCT_SHIPPING_API_LEVEL := 31
 # Dynamic
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Disable A/B until stable
-ENABLE_VIRTUAL_AB := false
-AB_OTA_UPDATER := false
+# Virtual A/B
+ENABLE_VIRTUAL_AB := true
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression.mk)
 
-# Remove conflicting OTA packages
-#PRODUCT_PACKAGES += \
-#    otapreopt_script \
-#    update_engine \
-#    update_engine_sideload \
-#    update_verifier
+# Installs gsi keys into ramdisk, to boot a developer GSI with verified boot.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
+
+# Enable project quotas and casefolding for emulated storage without sdcardfs
+$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+
+# A/B
+PRODUCT_PACKAGES += \
+    otapreopt_script
+
+AB_OTA_POSTINSTALL_CONFIG += \
+    RUN_POSTINSTALL_system=true \
+    POSTINSTALL_PATH_system=system/bin/otapreopt_script \
+    FILESYSTEM_TYPE_system=ext4 \
+    POSTINSTALL_OPTIONAL_system=true
+
+PRODUCT_PACKAGES_DEBUG += \
+    bootctrl \
+    update_engine_client
+
+# Fastbootd
+PRODUCT_PACKAGES += \
+    fastbootd \
+    android.hardware.fastboot@1.0-impl-mock
+
+# Health
+PRODUCT_PACKAGES += \
+    android.hardware.health@2.1-impl \
+    android.hardware.health@2.1-service
+
+# Update Engine
+PRODUCT_PACKAGES += \
+    update_engine \
+    update_engine_sideload \
+    update_verifier
 
 # Boot control HAL
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-impl.recovery \
     android.hardware.boot@1.2-impl
-
-# fastbootd
-PRODUCT_PACKAGES += \
-    android.hardware.fastboot@1.0-impl-mock
-
-# Heath hal
-PRODUCT_PACKAGES += \
-    android.hardware.health@2.1-service \
-    android.hardware.health@2.1-impl
     
 # Additional target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
@@ -62,38 +83,33 @@ TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libhardware.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libcutils.so
 
-# TWRP UI Configuration
+# TWRP Configurations
+TW_FRAMERATE := 120
 TW_THEME := portrait_hdpi
-DEVICE_RESOLUTION := 1080x2400
-TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
-TW_MAX_BRIGHTNESS := 2047
-TW_DEFAULT_BRIGHTNESS := 1200
-#TW_SCREEN_BLANK_ON_BOOT := true
-TW_NO_SCREEN_BLANK := true
-TW_INPUT_BLACKLIST := "hbtp_vm"
-TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.usb0/lun.%d/file
-TW_EXCLUDE_DEFAULT_USB_INIT := true
-TW_INCLUDE_NTFS_3G := true
-TWRP_INCLUDE_LOGCAT := true
 TARGET_USES_LOGD := true
-TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+TWRP_INCLUDE_LOGCAT := true
 TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_REPACKTOOLS := true
+TW_INCLUDE_LIBRESETPROP := true
 TW_EXCLUDE_APEX := true
+TW_INCLUDE_NTFS_3G := true
 TARGET_USES_MKE2FS := true
-USE_RECOVERY_INSTALLER := true
-RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
+TW_INCLUDE_FUSE_EXFAT := true
+TW_EXTRA_LANGUAGES := true
 
-# StatusBar
-TW_STATUS_ICONS_ALIGN := center
-TW_CUSTOM_CPU_POS := "300"
-TW_CUSTOM_CLOCK_POS := "70"
-TW_CUSTOM_BATTERY_POS := "790"
-TW_BATTERY_SYSFS_WAIT_SECONDS := 6
+#Brightness
+TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+TW_DEFAULT_BRIGHTNESS := 1400
+TW_MAX_BRIGHTNESS := 2048
 
-# SELinux Policies
-TW_INCLUDE_SELINUX := true
-TW_DEFAULT_EXTERNAL_STORAGE := true
+# USB
+TW_EXCLUDE_DEFAULT_USB_INIT := true
 
-# Maintainer Info
-TW_DEVICE_VERSION := by- aBr0him
+# Storage
+RECOVERY_SDCARD_ON_DATA := true
+
+# Maintainer
+BOARD_MAINTAINER_NAME := ツ๛abrohim๛
+TW_DEVICE_VERSION := $(BOARD_MAINTAINER_NAME)
+OF_MAINTAINER := $(BOARD_MAINTAINER_NAME)
+PB_MAIN_VERSION := $(BOARD_MAINTAINER_NAME)
