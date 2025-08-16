@@ -148,6 +148,8 @@ TARGET_NO_RECOVERY := true
 # Root
 BOARD_ROOT_EXTRA_FOLDERS += cust
 
+BOARD_SUPER_PARTITION := /dev/block/by-name/super
+
 # System as root
 BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
 
