@@ -1,6 +1,6 @@
-# Dynamic partitions (dual format)
-system        /system_root     ext4    ro      wait,logical,slotselect
-system        /system_root     erofs   ro      wait,logical,slotselect
+# Dynamic partitions (dual format, no system_root)
+system        /system          ext4    ro      wait,logical,slotselect
+system        /system          erofs   ro      wait,logical,slotselect
 vendor        /vendor          ext4    ro      wait,logical,slotselect
 vendor        /vendor          erofs   ro      wait,logical,slotselect
 product       /product         ext4    ro      wait,logical,slotselect
