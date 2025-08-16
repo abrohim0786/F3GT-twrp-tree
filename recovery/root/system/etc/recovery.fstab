@@ -1,15 +1,36 @@
-# Verified fstab for Poco F3 GT (ares)
+# Dynamic partitions (dual format)
+system_a        /system_root     ext4    ro      wait,logical,slotselect
+system_a        /system_root     erofs   ro      wait,logical,slotselect
+vendor_a        /vendor          ext4    ro      wait,logical,slotselect
+vendor_a        /vendor          erofs   ro      wait,logical,slotselect
+product_a       /product         ext4    ro      wait,logical,slotselect
+product_a       /product         erofs   ro      wait,logical,slotselect
+system_ext_a    /system_ext      ext4    ro      wait,logical,slotselect
+system_ext_a    /system_ext      erofs   ro      wait,logical,slotselect
+mi_ext_a        /mi_ext          ext4    ro      wait,logical,slotselect
+mi_ext_a        /mi_ext          erofs   ro      wait,logical,slotselect
+odm_a           /odm             ext4    ro      wait,logical,slotselect
+odm_a           /odm             erofs   ro      wait,logical,slotselect
 
-/system_root    /dev/block/dm-1       ext4    defaults
-/system_ext     /dev/block/dm-3       ext4    defaults
-/product        /dev/block/dm-2       ext4    defaults
-/vendor         /dev/block/dm-0       ext4    defaults
-/odm            /dev/block/dm-4       ext4    defaults
+# Super partition
+/dev/block/by-name/super         /super           emmc    defaults    defaults
 
-/data           /dev/block/by-name/userdata  f2fs  encryptable=footer,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware
+# Metadata (dual path for compatibility)
+metadata        /metadata        ext4    noatime,nosuid,nodev,discard    wait,check,formattable
+/dev/block/platform/bootdevice/by-name/md_udc /metadata ext4 noatime,nosuid,nodev,discard wait,check,formattable
 
-/metadata       /dev/block/sdc13      ext4    defaults
-/cache          /dev/block/sdc74      ext4    defaults
+# Data (FBE v2 encryption)
+userdata        /data            f2fs    noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware
 
-/misc           /dev/block/by-name/misc        emmc    defaults
-/recovery       /dev/block/by-name/recovery    emmc    defaults
+# Misc
+/dev/block/by-name/misc          /misc            emmc    defaults    defaults
+
+# Cache
+/dev/block/sdc74                 /cache           ext4    defaults    defaults
+
+# Vendor overlays
+/dev/block/sdc5                  /mnt/vendor/nvcfg     ext4    defaults    defaults
+/dev/block/sdc6                  /mnt/vendor/nvdata    ext4    defaults    defaults
+/dev/block/sdc14                 /mnt/vendor/persist   ext4    defaults    defaults
+/dev/block/sdc15                 /mnt/vendor/protect_f ext4    defaults    defaults
+/dev/block/sdc16                 /mnt/vendor/protect_s ext4    defaults    defaults
