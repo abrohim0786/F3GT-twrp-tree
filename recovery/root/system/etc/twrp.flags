@@ -1,20 +1,19 @@
 # Dynamic partitions (mapped via dm devices)
-#  system  → dm-1, vendor → dm-0, product → dm-2, system_ext → dm-3, odm → dm-4
-/system       ext4   /dev/block/dm-1    flags=display=system;first_stage_mount;backup=1;flashimg=1
-/vendor       ext4   /dev/block/dm-0    flags=display=vendor;first_stage_mount;backup=1;flashimg=1
-/product      ext4   /dev/block/dm-2    flags=display=product;first_stage_mount;backup=1;flashimg=1
-/system_ext   ext4   /dev/block/dm-3    flags=display=system_ext;first_stage_mount;backup=1;flashimg=1
-/odm          ext4   /dev/block/dm-4    flags=display=odm;first_stage_mount;backup=1;flashimg=1
+/system        ext4   /dev/block/dm-1    flags=display=system;backup=1;flashimg=1
+/vendor        ext4   /dev/block/dm-0    flags=display=vendor;backup=1;flashimg=1
+/product       ext4   /dev/block/dm-2    flags=display=product;backup=1;flashimg=1
+/system_ext    ext4   /dev/block/dm-3    flags=display=system_ext;backup=1;flashimg=1
+/odm           ext4   /dev/block/dm-4    flags=display=odm;backup=1;flashimg=1
 
 # Data (FBE + ICE)
-/data         f2fs   /dev/block/dm-47   flags=display=data;backup=1;flashimg=1
+/data          f2fs   /dev/block/by-name/userdata  flags=display=data;backup=1;flashimg=1
 
-# Cache / Rescue
-/cache        ext4   /dev/block/by-name/rescue   flags=display=cache;backup=1;flashimg=1
+# Cache
+/cache         ext4   /dev/block/sdc74   flags=display=cache;backup=1;flashimg=1
 
 # Vendor-specific raw partitions
-/mnt/vendor/protect_f  ext4  /dev/block/by-name/protect1  flags=display=protect_f;backup=1;flashimg=1
-/mnt/vendor/protect_s  ext4  /dev/block/by-name/protect2  flags=display=protect_s;backup=1;flashimg=1
-/mnt/vendor/nvdata     ext4  /dev/block/by-name/nvdata    flags=display=nvdata;backup=1;flashimg=1
-/mnt/vendor/nvcfg      ext4  /dev/block/by-name/nvcfg     flags=display=nvcfg;backup=1;flashimg=1
-/mnt/vendor/persist    ext4  /dev/block/by-name/persist   flags=display=persist;backup=1;flashimg=1
+/mnt/vendor/protect_f  ext4  /dev/block/sdc15  flags=display=protect_f;backup=1;flashimg=1
+/mnt/vendor/protect_s  ext4  /dev/block/sdc16  flags=display=protect_s;backup=1;flashimg=1
+/mnt/vendor/nvdata     ext4  /dev/block/sdc6   flags=display=nvdata;backup=1;flashimg=1
+/mnt/vendor/nvcfg      ext4  /dev/block/sdc5   flags=display=nvcfg;backup=1;flashimg=1
+/mnt/vendor/persist    ext4  /dev/block/sdc14  flags=display=persist;backup=1;flashimg=1
