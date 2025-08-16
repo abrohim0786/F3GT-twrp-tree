@@ -1,24 +1,40 @@
-# Patched recovery.fstab for Poco F3 GT (ares)
-# Supports dynamic partitions, FBE decryption with ICE, and metadata keydirectory
+# Copyright (c) 2019, The Linux Foundation. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+#       copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided
+#       with the distribution.
+#     * Neither the name of The Linux Foundation nor the names of its
+#       contributors may be used to endorse or promote products derived
+#       from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+# BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+# OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+# IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-/system        /dev/block/mapper/system_a        ext4    flags=wait,slotselect
-/system_ext    /dev/block/mapper/system_ext_a    ext4    flags=wait,slotselect
-/product       /dev/block/mapper/product_a       ext4    flags=wait,slotselect
-/vendor        /dev/block/mapper/vendor_a        ext4    flags=wait,slotselect
-/data          /dev/block/mapper/userdata        f2fs    flags=encryptable=footer,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware,slotselect
-/metadata      /dev/block/bootdevice/by-name/metadata ext4 flags=wait
-/cache         /dev/block/bootdevice/by-name/cache    ext4 flags=wait
-/misc          /dev/block/bootdevice/by-name/misc     ext4 flags=wait
-/persist       /dev/block/bootdevice/by-name/persist  ext4 flags=wait
-/protect_f     /dev/block/bootdevice/by-name/protect_f ext4 flags=wait
-/protect_s     /dev/block/bootdevice/by-name/protect_s ext4 flags=wait
-/nvcfg         /dev/block/bootdevice/by-name/nvcfg    ext4 flags=wait
-/nvdata        /dev/block/bootdevice/by-name/nvdata   ext4 flags=wait
-/odm           /dev/block/mapper/odm_a                ext4 flags=wait,slotselect
+#device                                             mount point      fstype        [device2] [length=]
+/dev/block/mapper/system_a                          /system          ext4          ro         wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+/dev/block/mapper/system_ext_a                      /system_ext      ext4          ro         wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+/dev/block/mapper/product_a                         /product         ext4          ro         wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+/dev/block/mapper/vendor_a                          /vendor          ext4          ro         wait,slotselect,avb,logical,first_stage_mount
+/dev/block/mapper/odm_a                             /odm             ext4          ro,barrier=1,discard   wait,slotselect,avb,logical,first_stage_mount
 
-# Optional mount points for vendor overlays
-/mnt/vendor/nvcfg     /dev/block/bootdevice/by-name/nvcfg    ext4 flags=wait
-/mnt/vendor/nvdata    /dev/block/bootdevice/by-name/nvdata   ext4 flags=wait
-/mnt/vendor/persist   /dev/block/bootdevice/by-name/persist  ext4 flags=wait
-/mnt/vendor/protect_f /dev/block/bootdevice/by-name/protect_f ext4 flags=wait
-/mnt/vendor/protect_s /dev/block/bootdevice/by-name/protect_s ext4 flags=wait
+/dev/block/by-name/metadata                         /metadata        ext4          noatime,nosuid,nodev,discard   wait,check,formattable,wrappedkey,first_stage_mount
+/dev/block/mapper/userdata                          /data            f2fs          noatime,nosuid,nodev,discard,reserve_root=32768,resgid=1065,fsync_mode=nobarrier   latemount,wait,check,formattable,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware,quota,reservedsize=128M,sysfs_path=/sys/devices/platform/soc/1d84000.ufshc,checkpoint=fs
+
+/dev/block/mmcblk0p1                                 /sdcard          vfat          nosuid,nodev   wait
+/dev/block/by-name/boot                              /boot            emmc          defaults       defaults
+/dev/block/by-name/misc                              /misc            emmc          defaults       defaults
