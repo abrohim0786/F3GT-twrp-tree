@@ -42,6 +42,8 @@ TARGET_USES_UEFI := true
 
 # Platform
 TARGET_BOARD_PLATFORM := mt6893
+BOARD_HAS_MTK_HARDWARE := true
+BOARD_VENDOR := xiaomi
 
 # Assert
 TARGET_OTA_ASSERT_DEVICE := ares,aresin
@@ -147,8 +149,6 @@ TARGET_NO_RECOVERY := true
 
 # Root
 BOARD_ROOT_EXTRA_FOLDERS += cust
-
-BOARD_SUPER_PARTITION := /dev/block/by-name/super
 
 # System as root
 BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
