@@ -47,21 +47,18 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service \
     android.hardware.health@2.1-impl
     
-# Lists additional modules to include in the recovery image.
 # Additional binaries & libraries needed for recovery
 TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
     libpuresoftkeymasterdevice \
-    ashmemd_aidl_interface-cpp \
-    libashmemd_client
-
+    
 # RECOVERY ADDITIONAL RELINK LIBRARY FILES
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
+    $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)/libkeymaster4.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/ashmemd_aidl_interface-cpp.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libashmemd_client.so
-
+    $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
+    
 # TWRP UI Configuration
 TW_FRAMERATE := 120
 TW_THEME := portrait_hdpi
@@ -86,7 +83,6 @@ RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
 TW_FORCE_KEYMASTER_VER := true
 
 # APEX
-DEXPREOPT_GENERATE_APEX_IMAGE := true
 TW_EXCLUDE_APEX := true
 
 # Display
