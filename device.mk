@@ -47,20 +47,20 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service \
     android.hardware.health@2.1-impl
     
-# Additional target Libraries
+# Lists additional modules to include in the recovery image.
+# Additional binaries & libraries needed for recovery
 TARGET_RECOVERY_DEVICE_MODULES += \
-    libsoftkeymasterdevice \
-    libkeymaster_messages \
-    libkeystore_binder \
-    libhardware \
-    libcutils
+    libkeymaster4 \
+    libpuresoftkeymasterdevice \
+    ashmemd_aidl_interface-cpp \
+    libashmemd_client
 
+# RECOVERY ADDITIONAL RELINK LIBRARY FILES
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libsoftkeymasterdevice.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster_messages.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore_binder.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libhardware.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libcutils.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/ashmemd_aidl_interface-cpp.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libashmemd_client.so
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
@@ -78,10 +78,29 @@ TARGET_USES_LOGD := true
 TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
 TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_REPACKTOOLS := true
-TW_EXCLUDE_APEX := true
 TARGET_USES_MKE2FS := true
 USE_RECOVERY_INSTALLER := true
 RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
+
+TW_FORCE_KEYMASTER_VER := true
+
+# APEX
+DEXPREOPT_GENERATE_APEX_IMAGE := true
+TW_EXCLUDE_APEX := true
+
+# Display
+TARGET_SCREEN_DENSITY := 440
+TARGET_SCREEN_HEIGHT := 1080
+TARGET_SCREEN_WIDTH := 2400
+
+# building of an OEM friendly TWRP. excludes SuperSu, uses Toolbox instead busybox, disables themeing. MORE INFOS TO BE ADDED
+TW_OEM_BUILD := true
+
+# Configure SELinux options.
+TW_HAVE_SELINUX := true
+
+TW_OVERRIDE_SYSTEM_PROPS := \
+    "ro.build.product;ro.build.fingerprint=ro.system.build.fingerprint;ro.build.version.incremental;ro.product.device=ro.product.system.device;ro.product.model=ro.product.system.model;ro.product.name=ro.product.system.name"
 
 # StatusBar
 TW_STATUS_ICONS_ALIGN := center
