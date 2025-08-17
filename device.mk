@@ -63,6 +63,7 @@ TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libashmemd_client.so
 
 # TWRP UI Configuration
+TW_FRAMERATE := 120
 TW_THEME := portrait_hdpi
 DEVICE_RESOLUTION := 1080x2400
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
@@ -90,8 +91,6 @@ TW_EXCLUDE_APEX := true
 
 # Display
 TARGET_SCREEN_DENSITY := 440
-TARGET_SCREEN_HEIGHT := 1080
-TARGET_SCREEN_WIDTH := 2400
 
 # building of an OEM friendly TWRP. excludes SuperSu, uses Toolbox instead busybox, disables themeing. MORE INFOS TO BE ADDED
 TW_OEM_BUILD := true
