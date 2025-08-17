@@ -1,9 +1,5 @@
 # Keymaster
 ro.hardware.kmsetkey=beanpod
-ro.crypto.volume.filenames_mode=aes-256-cts
-
-# USB
-ro.sys.usb.storage.type=mtp
 
 # Basic properties
 ro.twrp.build=1
@@ -12,3 +8,22 @@ ro.twrp.build=1
 persist.sys.usb.config=adb
 persist.service.adb.enable=1
 debug.sf.latch_unsignaled=1
+
+# Fstab
+ro.postinstall.fstab.prefix=/system
+
+# USB MTP
+ro.sys.usb.storage.type=mtp
+
+# Crypto
+ro.crypto.volume.filenames_mode=aes-256-cts
+
+# TEE
+ro.vendor.mtk_tee_gp_support=1
+ro.vendor.mtk_microtrust_tee_support=1
+
+# Gatekeeper
+ro.hardware.gatekeeper=beanpod
+
+# HideReflashTWRP
+ro.twrp.boot=true
