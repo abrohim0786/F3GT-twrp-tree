@@ -155,3 +155,15 @@ BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
 
 # Treble
 BOARD_VNDK_VERSION := current
+
+# Enable FBE metadata partition support
+BOARD_USES_METADATA_PARTITION := true
+
+# Tell TWRP to handle file-based encryption (FBE) in recovery
+BOARD_USES_FBE := true
+
+# Inject the exact fileencryption flags into recovery.fstab via twrp.flags
+TARGET_RECOVERY_FSTAB_FLAGS := \
+    fileencryption=ice:wrappedkey_v0,\
+    keydirectory=/metadata/vold/metadata_encryption,\
+    metadata_encryption=hardware
