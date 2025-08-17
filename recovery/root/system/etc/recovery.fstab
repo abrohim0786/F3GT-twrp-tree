@@ -1,53 +1,42 @@
-# Dynamic partitions (ext4 + erofs)
-system         /system        ext4    ro    wait,slotselect,logical
-system         /system        erofs   ro    wait,slotselect,logical
+# Dynamic partitions
+system        /system        ext4    ro                                          wait,logical,slotselect
+system        /system        erofs   ro                                          wait,logical,slotselect
+system_ext    /system_ext    ext4    ro                                          wait,logical,slotselect
+system_ext    /system_ext    erofs   ro                                          wait,logical,slotselect
+product       /product       ext4    ro                                          wait,logical,slotselect
+product       /product       erofs   ro                                          wait,logical,slotselect
+vendor        /vendor        ext4    ro                                          wait,logical,slotselect
+vendor        /vendor        erofs   ro                                          wait,logical,slotselect
+mi_ext        /mi_ext        ext4    ro                                          wait,logical,slotselect
+mi_ext        /mi_ext        erofs   ro                                          wait,logical,slotselect
 
-vendor         /vendor        ext4    ro    wait,slotselect,logical
-vendor         /vendor        erofs   ro    wait,slotselect,logical
+# Metadata (FBE key storage)
+/dev/block/by-name/metadata                    /metadata    ext4    noatime,nosuid,nodev,discard             wait,check,formattable
+/dev/block/platform/bootdevice/by-name/md_udc  /metadata    ext4    noatime,nosuid,nodev,discard             wait,check,formattable
 
-product        /product       ext4    ro    wait,slotselect,logical
-product        /product       erofs   ro    wait,slotselect,logical
+# Data (FBE v2, inline crypto) - fixed to single line, correct columns
+/dev/block/by-name/userdata /data f2fs noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware
 
-system_ext     /system_ext    ext4    ro    wait,slotselect,logical
-system_ext     /system_ext    erofs   ro    wait,slotselect,logical
+# Cache
+/dev/block/by-name/rescue /cache ext4 defaults wait,formattable
 
-mi_ext         /mi_ext        ext4    ro    wait,slotselect,logical,nofail
-mi_ext         /mi_ext        erofs   ro    wait,slotselect,logical,nofail
+# Vendor overlays
+/dev/block/by-name/nvcfg     /mnt/vendor/nvcfg     ext4 defaults wait,formattable
+/dev/block/by-name/nvdata    /mnt/vendor/nvdata    ext4 defaults wait,formattable
+/dev/block/by-name/persist   /mnt/vendor/persist   ext4 defaults wait,formattable
+/dev/block/by-name/protect1  /mnt/vendor/protect_f ext4 defaults wait,formattable
+/dev/block/by-name/protect2  /mnt/vendor/protect_s ext4 defaults wait,formattable
 
+# Misc
+/dev/block/by-name/misc      /misc       emmc defaults
+/dev/block/by-name/frp       /persistent emmc defaults
+/dev/block/by-name/nvram     /nvram      emmc defaults
+/dev/block/by-name/proinfo   /proinfo    emmc defaults
+/dev/block/by-name/para      /para       emmc defaults
 
-# Metadata
-/dev/block/by-name/metadata    /metadata    ext4    noatime,nosuid,nodev,discard    wait,check,formattable
-
-# Data (FBE v2 inline-crypt)
-/dev/block/by-name/userdata    /data        ext4    noatime,nosuid,nodev,discard,\
-                                               noflush_merge,fsync_mode=nobarrier,\
-                                               reserve_root=134217,resgid=1065,\
-                                               inlinecrypt          \
-                                          wait,check,formattable,\
-                                          fileencryption=ice:wrappedkey_v0,\
-                                          keydirectory=/metadata/vold/metadata_encryption,\
-                                          metadata_encryption=hardware
-
-# Cache (OEM “rescue” partition)
-/dev/block/by-name/rescue      /cache       ext4    defaults    wait,formattable
-
-# Vendor-side overlays
-/dev/block/by-name/nvcfg       /mnt/vendor/nvcfg    ext4    noatime,nosuid,nodev    defaults,wait,formattable
-/dev/block/by-name/nvdata      /mnt/vendor/nvdata   ext4    noatime,nosuid,nodev    defaults,wait,formattable
-/dev/block/by-name/persist     /mnt/vendor/persist  ext4    noatime,nosuid,nodev    defaults,wait,formattable
-/dev/block/by-name/protect1    /mnt/vendor/protect_f ext4   noatime,nosuid,nodev    defaults,wait,formattable
-/dev/block/by-name/protect2    /mnt/vendor/protect_s ext4   noatime,nosuid,nodev    defaults,wait,formattable
-
-# Bootloader & dtb partitions (slotselect-aware)
-/dev/block/by-name/boot        /boot         emmc    defaults,nofail,slotselect
-/dev/block/by-name/dtbo        /dtbo         emmc    defaults,nofail,slotselect
-/dev/block/by-name/vbmeta_system /vbmeta_system emmc defaults,nofail,slotselect
-/dev/block/by-name/vbmeta_vendor /vbmeta_vendor emmc defaults,nofail,slotselect
-/dev/block/by-name/vbmeta      /vbmeta       emmc    defaults,nofail,slotselect
-
-# Misc & misc‐like
-/dev/block/by-name/misc        /misc         emmc    defaults
-/dev/block/by-name/frp         /persistent   emmc    defaults
-/dev/block/by-name/nvram       /nvram        emmc    defaults
-/dev/block/by-name/proinfo     /proinfo      emmc    defaults
-/dev/block/by-name/para        /para         emmc    defaults
+# Bootloader & dtbo
+/dev/block/by-name/boot           /boot           emmc defaults,nofail,slotselect
+/dev/block/by-name/dtbo           /dtbo           emmc defaults,nofail,slotselect
+/dev/block/by-name/vbmeta_system  /vbmeta_system  emmc defaults,nofail,slotselect
+/dev/block/by-name/vbmeta_vendor  /vbmeta_vendor  emmc defaults,nofail,slotselect
+/dev/block/by-name/vbmeta         /vbmeta         emmc defaults,nofail,slotselect
