@@ -61,7 +61,7 @@ TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
 
 # additional.fstab
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/etc/additional.fstab:recovery/root/etc/additional.fstab
+    $(LOCAL_PATH)/recovery.fstab:recovery/root/etc/recovery.fstab
 
 # TWRP UI Configuration
 TW_FRAMERATE := 120
