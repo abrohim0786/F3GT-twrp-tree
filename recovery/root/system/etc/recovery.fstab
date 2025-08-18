@@ -15,7 +15,7 @@ mi_ext        /mi_ext        erofs   ro                                         
 /dev/block/platform/bootdevice/by-name/md_udc  /metadata    ext4    noatime,nosuid,nodev,discard             wait,check,formattable
 
 # Data partition (FBE v2, inline crypto, wrapped keys)
-/data f2fs /dev/block/mapper/userdata wait,check,formattable,encryptable=footer,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware
+/dev/block/mapper/userdata /data f2fs wait,check,formattable,encryptable=footer,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware
 
 # Cache
 /dev/block/by-name/rescue /cache ext4 defaults wait,formattable
