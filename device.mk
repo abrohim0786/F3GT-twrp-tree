@@ -48,59 +48,27 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl
     # Additional binaries & libraries needed for recovery decryption
 
-# Keymaster + Keystore2 + Gatekeeper + KeyMint
+# Minimal crypto stack for FBE decryption
 TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
-    libpuresoftkeymasterdevice \
-    libsoftkeymasterdevice \
-    libkeymint \
+    libpuresoftkeymasterdevice
     libkeystore2_crypto \
     libkeystore2 \
-    libbinder_ndk \
-    libhidlbase \
-    libhidltransport \
-    libutils \
-    libbase \
     libcrypto \
-    libssl
-
-# Services (executables) that must be copied into recovery
-TARGET_RECOVERY_DEVICE_MODULES += \
-    keystore2 \
-    hwservicemanager \
-    servicemanager \
+    libssl \
     vold
 
-# Vendor HAL service binaries (adjust path if vendor tree provides different names)
-TARGET_RECOVERY_DEVICE_MODULES += \
-    android.hardware.security.keymint-service \
-    android.hardware.gatekeeper@1.0-service
-
-# Relink libraries into recovery ramdisk
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libsoftkeymasterdevice.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymint.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore2_crypto.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore2.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libbinder_ndk.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libhidlbase.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libhidltransport.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libutils.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libbase.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libcrypto.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libssl.so
 
-# Relink binaries too (if make complains, add explicitly)
 TW_RECOVERY_ADDITIONAL_RELINK_BINARY_FILES += \
-    $(TARGET_OUT_EXECUTABLES)/keystore2 \
-    $(TARGET_OUT_EXECUTABLES)/hwservicemanager \
-    $(TARGET_OUT_EXECUTABLES)/servicemanager \
-    $(TARGET_OUT_EXECUTABLES)/vold \
-    $(TARGET_OUT_EXECUTABLES)/android.hardware.security.keymint-service \
-    $(TARGET_OUT_EXECUTABLES)/android.hardware.gatekeeper@1.0-service
-    
+    $(TARGET_OUT_EXECUTABLES)/vold
+
 # TWRP UI Configuration
 TW_FRAMERATE := 120
 TW_THEME := portrait_hdpi
@@ -158,8 +126,3 @@ BOARD_MAINTAINER_NAME := ツ๛abrohim๛
 TW_DEVICE_VERSION := $(BOARD_MAINTAINER_NAME)
 OF_MAINTAINER := $(BOARD_MAINTAINER_NAME)
 PB_MAIN_VERSION := $(BOARD_MAINTAINER_NAME)
-
-# Only use our custom recovery.fstab
-TW_USE_LEGACY_FSTAB := true
-TW_IGNORE_DEFAULT_FSTAB := true
-TW_INCLUDE_F2FS := true
