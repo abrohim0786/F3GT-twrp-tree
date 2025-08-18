@@ -1,33 +1,27 @@
-# Dynamic partitions (super)
-system        /system        erofs   ro   wait,logical,slotselect
-system_ext    /system_ext    erofs   ro   wait,logical,slotselect
-product       /product       erofs   ro   wait,logical,slotselect
-vendor        /vendor        erofs   ro   wait,logical,slotselect
-mi_ext        /mi_ext        erofs   ro   wait,logical,slotselect
+# Android fstab file.
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
-# Metadata (FBE key storage)
-/dev/block/by-name/metadata  /metadata  ext4  noatime,nosuid,nodev,discard  wait,check,formattable
+# TODO: Add 'check' as fs_mgr_flags with data partition.
+# Currently we dont have e2fsck compiled. So fs check would failed.
 
-# Data partition (FBE v2)
-/dev/block/by-name/userdata  /data  f2fs  noatime,nosuid,nodev,discard,inlinecrypt  wait,check,formattable,encryptable=footer
+#<src>                          <mnt_point>           <type>   <mnt_flags and options>                                         <fs_mgr_flags>
+system                           /system               ext4     ro                                                              wait,logical,slotselect
+system                           /system               erofs     ro                                                              wait,logical,slotselect
+system_ext                       /system_ext           ext4     ro                                                              wait,logical,slotselect
+system_ext                        /system_ext          erofs     ro                                                              wait,logical,slotselect
+product                           /product              ext4     ro                                                              wait,logical,slotselect
+product                           /product              erofs     ro                                                              wait,logical,slotselect
+vendor                            /vendor               ext4     ro                                                              wait,logical,slotselect
+vendor                            /vendor               erofs     ro                                                              wait,logical,slotselect
+mi_ext                            /mi_ext               ext4     ro                                                              wait,logical,slotselect
+mi_ext                            /mi_ext               erofs    ro                                                              wait,logical,slotselect
 
-# Vendor overlays
-/dev/block/by-name/nvcfg     /mnt/vendor/nvcfg     ext4  defaults  wait,formattable
-/dev/block/by-name/nvdata    /mnt/vendor/nvdata    ext4  defaults  wait,formattable
-/dev/block/by-name/persist   /mnt/vendor/persist   ext4  defaults  wait,formattable
-/dev/block/by-name/protect1  /mnt/vendor/protect_f ext4  defaults  wait,formattable
-/dev/block/by-name/protect2  /mnt/vendor/protect_s ext4  defaults  wait,formattable
+# Metadata
+/dev/block/by-name/metadata                      /metadata             ext4     noatime,nosuid,nodev,discard                                    wait,check,formattable
+/dev/block/platform/bootdevice/by-name/md_udc       /metadata        ext4      noatime,nosuid,nodev,discard wait,check,formattable
 
-# Misc
-/dev/block/by-name/misc      /misc       emmc  defaults
-/dev/block/by-name/frp       /persistent emmc  defaults
-/dev/block/by-name/nvram     /nvram      emmc  defaults
-/dev/block/by-name/proinfo   /proinfo    emmc  defaults
-/dev/block/by-name/para      /para       emmc  defaults
+# Userdata
+/dev/block/by-name/userdata                      /data                 f2fs     noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption
 
-# Boot & DTBO
-/dev/block/by-name/boot           /boot           emmc  defaults,nofail,slotselect
-/dev/block/by-name/dtbo           /dtbo           emmc  defaults,nofail,slotselect
-/dev/block/by-name/vbmeta_system  /vbmeta_system  emmc  defaults,nofail,slotselect
-/dev/block/by-name/vbmeta_vendor  /vbmeta_vendor  emmc  defaults,nofail,slotselect
-/dev/block/by-name/vbmeta         /vbmeta         emmc  defaults,nofail,slotselect
+/dev/block/by-name/misc                          /misc                 emmc     defaults                                                        defaults
