@@ -59,6 +59,10 @@ TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
     $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
 
+# additional fstab 
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery.fstab:recovery/root/etc/recovery.fstab
+
 # TWRP UI Configuration
 TW_FRAMERATE := 120
 TW_THEME := portrait_hdpi
