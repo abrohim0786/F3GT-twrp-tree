@@ -40,3 +40,6 @@
 
 # External Storage
 /usb_otg            vfat      /dev/block/sda1 /dev/block/sdd      flags=display="USB-OTG";storage;wipeingui;removable
+
+# Metadata
+/data f2fs /dev/block/mapper/userdata flags=display="data";backup=1;usermrf
