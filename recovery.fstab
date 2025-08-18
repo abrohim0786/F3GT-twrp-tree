@@ -14,8 +14,9 @@ mi_ext        /mi_ext        erofs   ro                                         
 /dev/block/by-name/metadata                    /metadata    ext4    noatime,nosuid,nodev,discard             wait,check,formattable
 /dev/block/platform/bootdevice/by-name/md_udc  /metadata    ext4    noatime,nosuid,nodev,discard             wait,check,formattable
 
-# Data partition (FBE v2, inline crypto, wrapped keys)
-/dev/block/mapper/userdata /data f2fs wait,check,formattable,encryptable=footer,fileencryption=ice:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=hardware
+# Data partition (FBE v2, MTK-compatible)
+# Removed legacy 'encryptable=footer' and QCOM-only 'ice:wrappedkey_v0'
+/dev/block/mapper/userdata /data f2fs fileencryption=software,keydirectory=/metadata/vold,metadata_encryption=software,latemount wait,check,resize,formattable
 
 # Cache
 /dev/block/by-name/rescue /cache ext4 defaults wait,formattable
