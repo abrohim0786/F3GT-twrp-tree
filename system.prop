@@ -1,6 +1,3 @@
-# Keymaster
-ro.hardware.kmsetkey=beanpod
-
 # Basic properties
 ro.twrp.build=1
 
@@ -21,15 +18,6 @@ ro.crypto.dm_default_key.options_format.version=2
 ro.crypto.volume.filenames_mode=aes-256-cts
 ro.crypto.volume.metadata.method=dm-default-key
 
-# Keymaster Version
-keymaster_ver=4.1
-
 # TEE
 ro.vendor.mtk_tee_gp_support=1
 ro.vendor.mtk_microtrust_tee_support=1
-
-# Gatekeeper
-ro.hardware.gatekeeper=beanpod
-
-# HideReflashTWRP
-ro.twrp.boot=true
