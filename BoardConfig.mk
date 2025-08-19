@@ -77,22 +77,35 @@ VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
 PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 
 # ------------------------------------------------------------------------------
-# CRITICAL FIXES START HERE
+# CRITICAL FIXES: DYNAMIC PARTITIONS (FIXED BUILD ERRORS)
 # ------------------------------------------------------------------------------
 
-# Dynamic Partition Flags (FIXED - This was the main problem)
+# Dynamic Partition Flags
 BOARD_SUPER_PARTITION_SIZE := 9126805504
 BOARD_SUPER_PARTITION_GROUPS := main
 BOARD_MAIN_SIZE := 9122611200
 BOARD_MAIN_PARTITION_LIST := system system_ext vendor product
-# Define the block device NAME for super partition (not path)
-# For Mediatek UFS devices, this is typically 'sda'
+
+# REQUIRED: Super partition block device names (not paths)
 BOARD_SUPER_PARTITION_BLOCK_DEVICES := system vendor product
+
+# REQUIRED: Individual partition sizes for super
+BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := 4294967296       # 4GB for system
+BOARD_SUPER_PARTITION_VENDOR_DEVICE_SIZE := 1073741824       # 1GB for vendor
+BOARD_SUPER_PARTITION_PRODUCT_DEVICE_SIZE := 1073741824      # 1GB for product
+BOARD_SUPER_PARTITION_SYSTEM_EXT_DEVICE_SIZE := 1073741824   # 1GB for system_ext
+
+# REQUIRED: Reserved sizes for each partition
 BOARD_SYSTEMIMAGE_PARTITION_RESERVED_SIZE := 104857600
 BOARD_VENDORIMAGE_PARTITION_RESERVED_SIZE := 104857600
 BOARD_PRODUCTIMAGE_PARTITION_RESERVED_SIZE := 104857600
+BOARD_SYSTEM_EXTIMAGE_PARTITION_RESERVED_SIZE := 104857600
 
-# Encryption & FBE (FIXED - Use modern TWRP handling)
+# ------------------------------------------------------------------------------
+# CRITICAL FIXES: ENCRYPTION (FIXED MOUNT ERRORS)
+# ------------------------------------------------------------------------------
+
+# Encryption & FBE
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_FBE := true
 TW_USE_FSCRYPT_POLICY := v2
@@ -100,22 +113,26 @@ TW_PREPARE_DATA_MEDIA_EARLY := true
 TW_INCLUDE_LOGICAL := true
 TW_INCLUDE_F2FS := true
 
+# Use TWRP's system_vold for decryption (more reliable)
+TW_CRYPTO_USE_SYSTEM_VOLD := true
+TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+
 # COMMENTED OUT legacy flags that were causing issues:
 # TW_USE_LEGACY_FSTAB := true
 # TW_IGNORE_DEFAULT_FSTAB := true
 # TW_CRYPTO_REAL_BLKDEV := "/dev/block/by-name/userdata"
 
-# Use TWRP's system_vold for decryption (more reliable)
-TW_CRYPTO_USE_SYSTEM_VOLD := true
-TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
-
 # ------------------------------------------------------------------------------
-# CRITICAL FIXES END HERE
+# FSTAB AND WIPE
 # ------------------------------------------------------------------------------
 
 # fstab
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
 TARGET_RECOVERY_WIPE := $(DEVICE_PATH)/recovery.wipe
+
+# ------------------------------------------------------------------------------
+# PARTITION SIZES
+# ------------------------------------------------------------------------------
 
 # Partition sizes
 BOARD_BOOTIMAGE_PARTITION_SIZE := 134217728
@@ -141,6 +158,10 @@ TARGET_COPY_OUT_VENDOR := vendor
 # Properties
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 
+# ------------------------------------------------------------------------------
+# RECOVERY SETTINGS
+# ------------------------------------------------------------------------------
+
 # Recovery
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_HAS_NO_SELECT_BUTTON := true
@@ -160,3 +181,25 @@ BOARD_VNDK_VERSION := current
 
 # FBE flag for TWRP
 BOARD_USES_FBE := true
+
+# ------------------------------------------------------------------------------
+# MEDIATEK SPECIFIC SETTINGS
+# ------------------------------------------------------------------------------
+
+# Mediatek flags
+BOARD_USES_MTK_HARDWARE := true
+MTK_HARDWARE := true
+
+# Anti-rollback spoof
+PLATFORM_VERSION := 99.87.36
+PLATFORM_SECURITY_PATCH := 2099-12-31
+VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
+
+# Mediatek specific crypto
+TW_CRYPTO_FS_TYPE := "ext4"
+TW_CRYPTO_REAL_BLKDEV := "/dev/block/platform/bootdevice/by-name/userdata"
+TW_CRYPTO_MNT_POINT := "/data"
+TW_CRYPTO_FS_OPTIONS := "nosuid,nodev,noatime,discard,noauto_da_alloc,data=ordered"
+
+# End of BoardConfig.mk
