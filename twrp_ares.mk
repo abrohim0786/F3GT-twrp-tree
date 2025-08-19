@@ -29,7 +29,3 @@ BUILD_FINGERPRINT := POCO/vnd_ares/ares:12/SP1A.210812.016/V816.0.2.0.TKJINXM:us
 # HACK: Set vendor patch level
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.build.security_patch=2099-12-31
-
-# Product-scoped vars go here
-PRODUCT_USE_DYNAMIC_PARTITIONS := true
-
