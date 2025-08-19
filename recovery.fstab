@@ -1,14 +1,89 @@
-# Dynamic partitions
-/dev/block/mapper/system        /system        ext4    ro      wait,slotselect,avb=vbmeta_system,logical
-/dev/block/mapper/vendor        /vendor        ext4    ro      wait,slotselect,avb,logical
-/dev/block/mapper/product       /product       ext4    ro      wait,slotselect,avb,logical
-/dev/block/mapper/system_ext    /system_ext    ext4    ro      wait,slotselect,avb,logical
+#
+# TWRP Recovery Fstab for Xiaomi Ares (Mediatek MT6893)
+# Simplified for Android 12+ with Dynamic Partitions and FBE
+#
 
-# Metadata and Data
-/dev/block/by-name/metadata     /metadata      ext4    noatime,nosuid,nodev,discard wait,check,formattable
-/dev/block/mapper/userdata      /data          f2fs    noatime,nosuid,nodev,discard inlinecrypt wait,check,formattable,quota,latemount,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption
+# Android 12+ Style Fstab for Dynamic Partitions and TWRP
+# System Partitions (Read-Only)
+/system			ext4	ro,barrier=1	wait,logical,slotselect
+/system_ext		ext4	ro,barrier=1	wait,logical,slotselect
+/product		ext4	ro,barrier=1	wait,logical,slotselect
+/vendor			ext4	ro,barrier=1	wait,logical,slotselect
+/odm			ext4	ro,barrier=1	wait,logical,slotselect
 
-# Cache
-/dev/block/by-name/rescue       /cache         ext4    noatime,nosuid,nodev,discard wait,check,formattable
+# Data and Metadata Partitions (Read-Write)
+/data			ext4	noatime,nosuid,nodev,noauto_da_alloc,barrier=1,data=ordered	wait,check,formattable,resize,encryptable=footer
+/data			f2fs	noatime,nosuid,nodev,background_gc=on,discard,user_xattr,acl,inline_data,inline_dentry,flush_merge,extent_cache,mode=adaptive,active_logs=6	wait,check,formattable,resize,encryptable=footer
 
-# Vendor partitions (unchanged)
+/metadata		ext4	noatime,nosuid,nodev,discard	wait,check,formattable
+
+# Cache Partition
+/cache			ext4	noatime,nosuid,nodev,discard	wait,check,formattable
+/cache			f2fs	noatime,nosuid,nodev,discard	wait,check,formattable
+
+# Boot and Recovery Partitions
+/boot			emmc	defaults		defaults
+/recovery		emmc	defaults		defaults
+/dtbo			emmc	defaults		defaults
+/vbmeta			emmc	defaults		defaults
+/vbmeta_system		emmc	defaults		defaults
+/vbmeta_vendor		emmc	defaults		defaults
+
+# Storage Partitions
+/sdcard			auto	/defaults		defaults		removable,storage
+/usb-otg		auto	/defaults		defaults		removable,storage
+/internal_sd		auto	/defaults		defaults
+
+# Mediatek Specific Partitions (Read-Only)
+/nvram			emmc	ro		defaults
+/proinfo		emmc	ro		defaults
+/protect_f		emmc	ro		defaults
+/protect_s		emmc	ro		defaults
+/seccfg			emmc	ro		defaults
+/para			emmc	ro		defaults
+/expdb			emmc	ro		defaults
+/logo			emmc	ro		defaults
+/md1img			emmc	ro		defaults
+/md1dsp			emmc	ro		defaults
+/md1arm7		emmc	ro		defaults
+/md3img			emmc	ro		defaults
+
+# Additional Partitions
+/persist			ext4	noatime,nosuid,nodev	wait,check
+/misc			emmc	defaults		defaults
+/frp			emmc	defaults		defaults
+/keystore		emmc	defaults		defaults
+
+# Vendor Sub-partitions
+/mnt/vendor/nvdata		ext4	noatime,nosuid,nodev	wait,check
+/mnt/vendor/nvcfg		ext4	noatime,nosuid,nodev	wait,check
+/mnt/vendor/persist		ext4	noatime,nosuid,nodev	wait,check
+/mnt/vendor/protect_f		ext4	noatime,nosuid,nodev	wait,check
+/mnt/vendor/protect_s		ext4	noatime,nosuid,nodev	wait,check
+
+# F2FS Options for Modern Devices
+f2fs			/dev/block/*		/data			flags=display="Data";backup=1;flashimg=1
+f2fs			/dev/block/*		/cache			flags=display="Cache";backup=1;wipeingui=1;flashimg=1
+
+# Filesystem Detection
+auto			/dev/block/bootdevice/by-name/userdata		/data			flags=length=-16384;encryptable=footer
+auto			/dev/block/bootdevice/by-name/cache		/cache			flags=wipeingui
+
+# Fallback entries for block device mapping
+/dev/block/bootdevice/by-name/system		/system			ext4	ro	wait,slotselect
+/dev/block/bootdevice/by-name/vendor		/vendor			ext4	ro	wait,slotselect
+/dev/block/bootdevice/by-name/product		/product		ext4	ro	wait,slotselect
+/dev/block/bootdevice/by-name/system_ext	/system_ext		ext4	ro	wait,slotselect
+
+# Super device mapping (for dynamic partitions)
+/dev/block/by-name/super				/super			raw		defaults
+
+# Additional flags for TWRP functionality
+flags			/data			storage=1;backup=1
+flags			/cache			wipe=1;backup=1
+flags			/system			backup=1
+flags			/vendor			backup=1
+flags			/product		backup=1
+flags			/system_ext		backup=1
+
+# End of TWRP recovery.fstab
