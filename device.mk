@@ -86,6 +86,9 @@ TARGET_USES_MKE2FS := true
 USE_RECOVERY_INSTALLER := true
 RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
 
+# Logical partitions support in recovery UI
+TW_INCLUDE_LOGICAL := true
+
 # StatusBar
 TW_STATUS_ICONS_ALIGN := center
 TW_CUSTOM_CPU_POS := "300"
