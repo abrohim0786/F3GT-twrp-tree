@@ -85,6 +85,7 @@ TW_INCLUDE_LOGICAL := true
 TW_USE_LEGACY_FSTAB := true
 TW_IGNORE_DEFAULT_FSTAB := true
 TW_INCLUDE_F2FS := true
+TW_CRYPTO_REAL_BLKDEV := "/dev/block/by-name/userdata"
 
 # fstab
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
