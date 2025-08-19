@@ -27,6 +27,10 @@
 /dev/block/by-name/md1dsp    0660    root    system
 /dev/block/by-name/boot_para 0640    root    system
 
+# userdata and metadata for vold access
+/dev/block/bootdevice/by-name/userdata 0660 root system
+/dev/block/bootdevice/by-name/metadata 0660 root system
+
 # OTP
 /dev/otp                  0660   system     system
 /dev/block/platform/bootdevice/by-name/otp       0660    root    system

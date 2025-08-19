@@ -30,6 +30,15 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service \
     android.hardware.health@2.1-impl
 
+# Keymaster/Gatekeeper/Keystore services required for FBE decryption
+PRODUCT_PACKAGES += \
+    android.hardware.gatekeeper@1.0-service \
+    android.hardware.keymaster@4.0-service.mitee \
+    android.hardware.keymaster@4.0-service.beanpod \
+    keystore_auth \
+    keystore \
+    vendor.xiaomi.hardware.vibratorfeature.service
+
 # ------------------------------------------------------------------------------
 # CRITICAL FIXES FOR DECRYPTION
 # ------------------------------------------------------------------------------
