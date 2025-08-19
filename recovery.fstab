@@ -7,8 +7,8 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 # Metadata (optional, no decrypt)
 metadata    /metadata       ext4    wait,check,formattable
 
-# /data — no encryption
-/dev/block/by-name/userdata /data  f2fs  wait,check,formattable,quota,reservedsize=128m
+# /data — FBE (file-based encryption) with metadata
+/dev/block/by-name/userdata /data  f2fs  wait,check,formattable,quota,reservedsize=128m,fileencryption=aes-256-cts,metadata_encryption=aes-256-xts
 
 # Cache and vendor partitions
 /dev/block/by-name/rescue       /cache              ext4    wait,check,formattable

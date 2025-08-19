@@ -47,14 +47,22 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service \
     android.hardware.health@2.1-impl
     
-# Additional target Libraries
+# Crypto and keymaster for FBE decryption
 TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
-    libpuresoftkeymasterdevice
+    libpuresoftkeymasterdevice \
+    libkeymaster4_1 \
+    libkeystore-engine-wifi-hidl
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4_1.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so
+
+# Use system vold for decryption
+TW_CRYPTO_USE_SYSTEM_VOLD := true
+TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
