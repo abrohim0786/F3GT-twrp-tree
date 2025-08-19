@@ -48,26 +48,14 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl
     # Additional binaries & libraries needed for recovery decryption
 
-# Minimal crypto stack for FBE decryption
+# Additional target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
     libpuresoftkeymasterdevice
-    libkeystore2_crypto \
-    libkeystore2 \
-    libcrypto \
-    libssl \
-    vold
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore2_crypto.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore2.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libcrypto.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libssl.so
-
-TW_RECOVERY_ADDITIONAL_RELINK_BINARY_FILES += \
-    $(TARGET_OUT_EXECUTABLES)/vold
 
 # TWRP UI Configuration
 TW_FRAMERATE := 120
