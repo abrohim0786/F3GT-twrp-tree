@@ -21,3 +21,7 @@ ro.crypto.volume.metadata.method=dm-default-key
 # TEE
 ro.vendor.mtk_tee_gp_support=1
 ro.vendor.mtk_microtrust_tee_support=1
+
+# KeyStore
+ro.hardware.keystore=mtk
+ro.crypto.keymaster.version=4
