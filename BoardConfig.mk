@@ -76,16 +76,42 @@ PLATFORM_SECURITY_PATCH := 2099-12-31
 VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
 PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 
-# Encryption & FBE
+# ------------------------------------------------------------------------------
+# CRITICAL FIXES START HERE
+# ------------------------------------------------------------------------------
+
+# Dynamic Partition Flags (FIXED - This was the main problem)
+BOARD_SUPER_PARTITION_SIZE := 9126805504
+BOARD_SUPER_PARTITION_GROUPS := main
+BOARD_MAIN_SIZE := 9122611200
+BOARD_MAIN_PARTITION_LIST := system system_ext vendor product
+# Define the block device NAME for super partition (not path)
+# For Mediatek UFS devices, this is typically 'sda'
+BOARD_SUPER_PARTITION_BLOCK_DEVICES := system vendor product
+BOARD_SYSTEMIMAGE_PARTITION_RESERVED_SIZE := 104857600
+BOARD_VENDORIMAGE_PARTITION_RESERVED_SIZE := 104857600
+BOARD_PRODUCTIMAGE_PARTITION_RESERVED_SIZE := 104857600
+
+# Encryption & FBE (FIXED - Use modern TWRP handling)
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_FBE := true
-TW_USE_FSCRYPT_POLICY := 1
+TW_USE_FSCRYPT_POLICY := v2
 TW_PREPARE_DATA_MEDIA_EARLY := true
 TW_INCLUDE_LOGICAL := true
-TW_USE_LEGACY_FSTAB := true
-TW_IGNORE_DEFAULT_FSTAB := true
 TW_INCLUDE_F2FS := true
-TW_CRYPTO_REAL_BLKDEV := "/dev/block/by-name/userdata"
+
+# COMMENTED OUT legacy flags that were causing issues:
+# TW_USE_LEGACY_FSTAB := true
+# TW_IGNORE_DEFAULT_FSTAB := true
+# TW_CRYPTO_REAL_BLKDEV := "/dev/block/by-name/userdata"
+
+# Use TWRP's system_vold for decryption (more reliable)
+TW_CRYPTO_USE_SYSTEM_VOLD := true
+TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+
+# ------------------------------------------------------------------------------
+# CRITICAL FIXES END HERE
+# ------------------------------------------------------------------------------
 
 # fstab
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
@@ -104,13 +130,6 @@ BOARD_ODMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
-
-# super partition
-BOARD_SUPER_PARTITION_BLOCKS := /dev/block/by-name/super
-BOARD_SUPER_PARTITION_GROUPS := main
-BOARD_SUPER_PARTITION_SIZE := 9126805504
-BOARD_MAIN_PARTITION_LIST := product system system_ext vendor
-BOARD_MAIN_SIZE := 9122611200
 
 # copyout targets
 TARGET_COPY_OUT_PRODUCT := product
