@@ -89,6 +89,10 @@ RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
 # Logical partitions support in recovery UI
 TW_INCLUDE_LOGICAL := true
 
+# Filesystem tools
+TW_INCLUDE_F2FS := true
+TARGET_USERIMAGES_USE_F2FS := true
+
 # StatusBar
 TW_STATUS_ICONS_ALIGN := center
 TW_CUSTOM_CPU_POS := "300"

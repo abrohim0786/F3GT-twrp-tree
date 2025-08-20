@@ -7,10 +7,7 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 # Metadata (optional, no decrypt)
 metadata    /metadata       ext4    wait,check,formattable
 
-# /data — FBE (file-based encryption) with metadata
-# Prefer ext4 first (actual FS detected as ext4 in logs); keep f2fs as fallback
-/dev/block/by-name/userdata /data  ext4  wait,check,formattable,quota,latemount,checkpoint=fs,reservedsize=128m,fileencryption=aes-256-cts,metadata_encryption=aes-256-xts,fsverity
-/dev/block/by-name/userdata /data  f2fs  wait,check,formattable,quota,latemount,reservedsize=128m,fileencryption=aes-256-cts,metadata_encryption=aes-256-xts
+# /data — handled via first_stage_ramdisk/fstab.mt6893 for FBE
 
 # Cache and vendor partitions
 /dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
