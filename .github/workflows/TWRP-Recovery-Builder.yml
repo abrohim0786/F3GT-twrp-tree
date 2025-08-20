@@ -156,7 +156,7 @@ jobs:
       continue-on-error: true
       
     - name: Install Python 2 (Legacy Branches)
-      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14'
+      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14.1'
       run: |
         sudo apt -y install python2
         sudo ln -sf /usr/bin/python2 /usr/bin/python
