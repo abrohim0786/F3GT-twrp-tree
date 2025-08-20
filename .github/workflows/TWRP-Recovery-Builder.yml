@@ -38,28 +38,15 @@ on:
         - boot
         - recovery
         - vendorboot
-      LDCHECK:
-        description: 'Path of blobs to check' 
-        required: true
-        default: 'system/bin/qseecomd'
       RECOVERY_INSTALLER:
         description: 'Include recovery installer.zip'
         type: boolean
         required: true
         default: true
-      TELEGRAM_BOT_TOKEN:
-        description: 'Telegram Bot Token (optional)'
+      TELEGRAM_CONFIG:
+        description: 'Telegram: BotToken:ChatID (e.g., 123456:ABC-DEF) or leave empty'
         required: false
         default: ''
-      TELEGRAM_CHAT_ID:
-        description: 'Telegram Chat ID (optional)'
-        required: false
-        default: ''
-      TELEGRAM_UPLOAD:
-        description: 'Upload to Telegram'
-        type: boolean
-        required: true
-        default: false
 
 jobs:
   build:
@@ -246,9 +233,19 @@ jobs:
           **🔒 MD5:** `${{ env.MD5_IMG }}`
 
     - name: Upload to Telegram
-      if: github.event.inputs.TELEGRAM_UPLOAD == 'true' && github.event.inputs.TELEGRAM_BOT_TOKEN != '' && github.event.inputs.TELEGRAM_CHAT_ID != ''
+      if: github.event.inputs.TELEGRAM_CONFIG != ''
       run: |
         echo "📱 Uploading TWRP to Telegram..."
+        
+        # Parse Telegram config (BotToken:ChatID)
+        TELEGRAM_CONFIG="${{ github.event.inputs.TELEGRAM_CONFIG }}"
+        BOT_TOKEN=$(echo "$TELEGRAM_CONFIG" | cut -d':' -f1)
+        CHAT_ID=$(echo "$TELEGRAM_CONFIG" | cut -d':' -f2)
+        
+        if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ]; then
+          echo "❌ Invalid Telegram config format. Use: BotToken:ChatID"
+          exit 1
+        fi
         
         # Create build info message
         BUILD_INFO="🛠 *TWRP Recovery Build Complete* 🛠\n\n"
@@ -268,24 +265,24 @@ jobs:
         fi
         
         # Send build info message
-        curl -s -X POST "https://api.telegram.org/bot${{ github.event.inputs.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-          -d "chat_id=${{ github.event.inputs.TELEGRAM_CHAT_ID }}" \
+        curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+          -d "chat_id=$CHAT_ID" \
           -d "text=$BUILD_INFO" \
           -d "parse_mode=Markdown" \
           -d "disable_web_page_preview=true"
         
         # Upload TWRP image
         echo "📤 Uploading ${{ env.RECOVERY_FILE }}..."
-        curl -s -X POST "https://api.telegram.org/bot${{ github.event.inputs.TELEGRAM_BOT_TOKEN }}/sendDocument" \
-          -F "chat_id=${{ github.event.inputs.TELEGRAM_CHAT_ID }}" \
+        curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
+          -F "chat_id=$CHAT_ID" \
           -F "document=@workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ env.RECOVERY_FILE }}" \
           -F "caption=🛠 TWRP ${{ env.RECOVERY_TYPE }} for ${{ github.event.inputs.DEVICE_NAME }}\n📅 ${{ env.BUILD_DATE }} ${{ env.BUILD_TIME }}\n🔒 MD5: ${{ env.MD5_IMG }}"
         
         # Upload installer if exists
         if [ "${{ github.event.inputs.RECOVERY_INSTALLER }}" == "true" ] && [ -f "workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery-installer.zip" ]; then
           echo "📤 Uploading recovery-installer.zip..."
-          curl -s -X POST "https://api.telegram.org/bot${{ github.event.inputs.TELEGRAM_BOT_TOKEN }}/sendDocument" \
-            -F "chat_id=${{ github.event.inputs.TELEGRAM_CHAT_ID }}" \
+          curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
+            -F "chat_id=$CHAT_ID" \
             -F "document=@workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery-installer.zip" \
             -F "caption=📱 Recovery Installer for ${{ github.event.inputs.DEVICE_NAME }}\n📅 ${{ env.BUILD_DATE }} ${{ env.BUILD_TIME }}"
         fi
@@ -300,7 +297,9 @@ jobs:
           [ -f libneeds ] && cp libneeds ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
           [ -f ldcheck ] && cp ldcheck ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
           cd ../workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root
-          python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ github.event.inputs.LDCHECK }}
+          if [ -f ldcheck ]; then
+            python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d system/bin/qseecomd || true
+          fi
         fi
         echo "Dependency check completed"
       continue-on-error: true
