@@ -17,10 +17,6 @@ metadata    /metadata       ext4    wait,check,formattable
 /dev/block/by-name/nvcfg        /mnt/vendor/nvcfg      ext4  wait,check,formattable
 /dev/block/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
 
-# Bind mount for mi_ext
-/dev/block/by-name/mi_ext       /mnt/vendor/mi_ext     ext4  wait,nofail
-/mnt/vendor/mi_ext              /mi_ext                none  bind wait,nofail
-
 # Boot and AVB partitions
 /dev/block/by-name/boot         /boot                  emmc  defaults slotselect,nofail
 /dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect,nofail

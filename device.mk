@@ -22,9 +22,9 @@ PRODUCT_SHIPPING_API_LEVEL := 31
 # Dynamic
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Disable A/B until stable
-ENABLE_VIRTUAL_AB := false
-AB_OTA_UPDATER := false
+# Enable A/B support
+ENABLE_VIRTUAL_AB := true
+AB_OTA_UPDATER := true
 
 # Remove conflicting OTA packages
 #PRODUCT_PACKAGES += \
