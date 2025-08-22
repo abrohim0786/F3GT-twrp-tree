@@ -43,7 +43,7 @@ system_ext /system_ext erofs ro wait,avb,logical,first_stage_mount,slotselect
 
 /dev/block/by-name/metadata /metadata ext4 noatime,nosuid,nodev,discard wait,check,formattable,first_stage_mount
 
-/dev/block/by-name/userdata /data f2fs noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+/dev/block/by-name/userdata /data ext4 noatime,nosuid,nodev,discard,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
 
 
 
@@ -74,7 +74,6 @@ system_ext /system_ext erofs ro wait,avb,logical,first_stage_mount,slotselect
 /dev/block/by-name/lk2 /bootloader2 emmc defaults defaults
 /dev/block/by-name/para /para emmc defaults defaults
 /dev/block/by-name/misc /misc emmc defaults defaults
-
 
 
 
