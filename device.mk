@@ -25,6 +25,7 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
 # Enable A/B support
 ENABLE_VIRTUAL_AB := true
 AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS := boot system vendor product system_ext vbmeta_system vbmeta_vendor
 
 # Remove conflicting OTA packages
 #PRODUCT_PACKAGES += \

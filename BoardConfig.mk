@@ -152,3 +152,4 @@ BOARD_SUPPRESS_LINEAGE_BUILDTYPE := true
 AB_OTA_UPDATER := true
 ENABLE_VIRTUAL_AB := true
 BOARD_USES_RECOVERY_AS_BOOT := true
+AB_OTA_PARTITIONS := boot system vendor product system_ext vbmeta_system vbmeta_vendor
