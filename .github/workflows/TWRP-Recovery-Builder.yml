@@ -20,7 +20,7 @@ on:
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch' 
         required: true
-        default: 'main'
+        default: ''
       DEVICE_PATH:
         description: 'Specify your Device Path' 
         required: true
@@ -38,15 +38,15 @@ on:
         - boot
         - recovery
         - vendorboot
+      LDCHECK:
+        description: 'Path of blobs to check' 
+        required: true
+        default: 'system/bin/qseecomd'
       RECOVERY_INSTALLER:
         description: 'Include recovery installer.zip'
         type: boolean
         required: true
         default: true
-      TELEGRAM_CONFIG:
-        description: 'Telegram: BotToken:ChatID (e.g., 123456:ABC-DEF) or leave empty'
-        required: false
-        default: ''
 
 jobs:
   build:
@@ -156,7 +156,7 @@ jobs:
       continue-on-error: true
       
     - name: Install Python 2 (Legacy Branches)
-      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14.1'
+      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14'
       run: |
         sudo apt -y install python2
         sudo ln -sf /usr/bin/python2 /usr/bin/python
@@ -232,63 +232,6 @@ jobs:
           
           **🔒 MD5:** `${{ env.MD5_IMG }}`
 
-    - name: Upload to Telegram
-      if: github.event.inputs.TELEGRAM_CONFIG != ''
-      run: |
-        echo "📱 Uploading TWRP to Telegram..."
-        
-        # Parse Telegram config (BotToken:ChatID)
-        TELEGRAM_CONFIG="${{ github.event.inputs.TELEGRAM_CONFIG }}"
-        BOT_TOKEN=$(echo "$TELEGRAM_CONFIG" | cut -d':' -f1)
-        CHAT_ID=$(echo "$TELEGRAM_CONFIG" | cut -d':' -f2)
-        
-        if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ]; then
-          echo "❌ Invalid Telegram config format. Use: BotToken:ChatID"
-          exit 1
-        fi
-        
-        # Create build info message
-        BUILD_INFO="🛠 *TWRP Recovery Build Complete* 🛠\n\n"
-        BUILD_INFO+="📱 *Device:* ${{ github.event.inputs.DEVICE_NAME }}\n"
-        BUILD_INFO+="🔧 *Build Type:* ${{ env.RECOVERY_TYPE }}\n"
-        BUILD_INFO+="📅 *Build Date:* ${{ env.BUILD_DATE }} ${{ env.BUILD_TIME }}\n"
-        BUILD_INFO+="👨‍💻 *Builder:* ${{ env.BUILD_AUTHOR }}\n\n"
-        BUILD_INFO+="🔗 *Source Info:*\n"
-        BUILD_INFO+="• Manifest: ${{ github.event.inputs.MANIFEST_BRANCH }}\n"
-        BUILD_INFO+="• Device Tree: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}\n"
-        BUILD_INFO+="• Commit: ${{ env.COMMIT_ID }}\n\n"
-        BUILD_INFO+="🔒 *MD5:* \`${{ env.MD5_IMG }}\`\n\n"
-        BUILD_INFO+="📥 *Files:*\n"
-        BUILD_INFO+="• ${{ env.RECOVERY_FILE }}\n"
-        if [ "${{ github.event.inputs.RECOVERY_INSTALLER }}" == "true" ]; then
-          BUILD_INFO+="• recovery-installer.zip\n"
-        fi
-        
-        # Send build info message
-        curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-          -d "chat_id=$CHAT_ID" \
-          -d "text=$BUILD_INFO" \
-          -d "parse_mode=Markdown" \
-          -d "disable_web_page_preview=true"
-        
-        # Upload TWRP image
-        echo "📤 Uploading ${{ env.RECOVERY_FILE }}..."
-        curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
-          -F "chat_id=$CHAT_ID" \
-          -F "document=@workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ env.RECOVERY_FILE }}" \
-          -F "caption=🛠 TWRP ${{ env.RECOVERY_TYPE }} for ${{ github.event.inputs.DEVICE_NAME }}\n📅 ${{ env.BUILD_DATE }} ${{ env.BUILD_TIME }}\n🔒 MD5: ${{ env.MD5_IMG }}"
-        
-        # Upload installer if exists
-        if [ "${{ github.event.inputs.RECOVERY_INSTALLER }}" == "true" ] && [ -f "workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery-installer.zip" ]; then
-          echo "📤 Uploading recovery-installer.zip..."
-          curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
-            -F "chat_id=$CHAT_ID" \
-            -F "document=@workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery-installer.zip" \
-            -F "caption=📱 Recovery Installer for ${{ github.event.inputs.DEVICE_NAME }}\n📅 ${{ env.BUILD_DATE }} ${{ env.BUILD_TIME }}"
-        fi
-        
-        echo "✅ Telegram upload completed!"
-
     - name: Check Dependencies
       run: |
         if [ -d "tools" ]; then
@@ -297,9 +240,7 @@ jobs:
           [ -f libneeds ] && cp libneeds ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
           [ -f ldcheck ] && cp ldcheck ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
           cd ../workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root
-          if [ -f ldcheck ]; then
-            python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d system/bin/qseecomd || true
-          fi
+          python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ github.event.inputs.LDCHECK }}
         fi
         echo "Dependency check completed"
       continue-on-error: true
