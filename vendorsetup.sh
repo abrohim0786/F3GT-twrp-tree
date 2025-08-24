@@ -61,8 +61,8 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
         export OF_SKIP_DECRYPTED_ADOPTED_STORAGE=1
     
 	# Maintainer & Versioning
-    export FOX_R12=2
-    export FOX_MAINTAINER_PATCH_VERSION="20250824"   # replaces FOX_VERSION
+    export FOX_R11=3
+    export FOX_MAINTAINER_PATCH_VERSION="20250824"
     export FOX_BUILD_TYPE="Unofficial"
     export FOX_VARIANT=HYPEROS
     export OF_PATCH_AVB20=1
