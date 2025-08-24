@@ -55,18 +55,18 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
         export FOX_USE_SPECIFIC_MAGISK_ZIP="$DEVICE_PATH/magisk/magisk.zip"
 
         # flashlight
-        export OF_FLASHLIGHT_ENABLE=0
+        export OF_FLASHLIGHT_ENABLE=1
 
         # Android 12+ Encryption *temporary use until binary.xml file will implement* #
         export OF_SKIP_DECRYPTED_ADOPTED_STORAGE=1
     
-	# R12
-	export FOX_R12=2
-	export FOX_VERSION="R12.1"
-  export FOX_BUILD_TYPE="Unofficial"
-	export FOX_VARIANT=HYPEROS
-	export OF_PATCH_AVB20=1
-	export OF_MAINTAINER="ツ๛abrohim๛"
+	# Maintainer & Versioning
+    export FOX_R12=2
+    export FOX_MAINTAINER_PATCH_VERSION="R12.1"   # replaces FOX_VERSION
+    export FOX_BUILD_TYPE="Unofficial"
+    export FOX_VARIANT=HYPEROS
+    export OF_PATCH_AVB20=1
+    export OF_MAINTAINER="ツ๛abrohim๛"
 	export OF_ADVANCED_SECURITY=1
 	export OF_USE_TWRP_SAR_DETECT=1
 	export FOX_VIRTUAL_AB_DEVICE=1
