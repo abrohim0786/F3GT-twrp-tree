@@ -53,17 +53,38 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
     libpuresoftkeymasterdevice \
     libkeymaster4_1 \
-    libkeystore-engine-wifi-hidl
+    libkeystore-engine-wifi-hidl \
+    libcrypto \
+    libssl \
+    libkeystore \
+    libgatekeeper \
+    libhardware \
+    libhidlbase \
+    libhidltransport \
+    libhwbinder
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4_1.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libcrypto.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libssl.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libgatekeeper.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhardware.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhidlbase.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhidltransport.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhwbinder.so
 
-# Use system vold for decryption
+# Enhanced FBE support
+TW_INCLUDE_FBE := true
+TW_INCLUDE_FBE_METADATA_DECRYPT := true
+TW_USE_FSCRYPT_POLICY := v2
 TW_CRYPTO_USE_SYSTEM_VOLD := true
 TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+TW_CRYPTO_FORCE_DECRYPT := true
+TW_CRYPTO_REAL_BLKDEV := true
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
