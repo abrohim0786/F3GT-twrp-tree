@@ -1,24 +1,24 @@
 # Dynamic partitions
-system      /system         ext4    ro      wait,slotselect,logical,avb=vbmeta_system
-system      /system         erofs   ro      wait,slotselect,logical,avb=vbmeta_system
-vendor      /vendor         ext4    ro      wait,slotselect,logical,avb
-vendor      /vendor         erofs   ro      wait,slotselect,logical,avb
-product     /product        ext4    ro      wait,slotselect,logical,avb
-product     /product        erofs   ro      wait,slotselect,logical,avb
-system_ext  /system_ext     ext4    ro      wait,slotselect,logical,avb
-system_ext  /system_ext     erofs   ro      wait,slotselect,logical,avb
+system      /system         ext4    ro      wait,slotselect,logical
+system      /system         erofs   ro      wait,slotselect,logical
+vendor      /vendor         ext4    ro      wait,slotselect,logical
+vendor      /vendor         erofs   ro      wait,slotselect,logical
+product     /product        ext4    ro      wait,slotselect,logical
+product     /product        erofs   ro      wait,slotselect,logical
+system_ext  /system_ext     ext4    ro      wait,slotselect,logical
+system_ext  /system_ext     erofs   ro      wait,slotselect,logical
 
 # Metadata partition (needed for FBE decryption)
-/dev/block/by-name/metadata   /metadata   ext4    wait,check,formattable
+/dev/block/platform/bootdevice/by-name/metadata   /metadata   ext4    wait,check,formattable
 
 # Data partition (FBEv2: crypto footer lives in /metadata/vold/metadata_encryption)
-/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
-/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+/dev/block/platform/bootdevice/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+/dev/block/platform/bootdevice/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts,aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
 
 # Cache and vendor partitions
-/dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
-/dev/block/by-name/protect1     /mnt/vendor/protect_f ext4  wait,check,formattable
-/dev/block/by-name/protect2     /mnt/vendor/protect_s ext4  wait,check,formattable
-/dev/block/by-name/nvdata       /mnt/vendor/nvdata     ext4  wait,check,formattable
-/dev/block/by-name/nvcfg        /mnt/vendor/nvcfg      ext4  wait,check,formattable
-/dev/block/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
+/dev/block/platform/bootdevice/by-name/rescue       /cache              ext4    wait,check,formattable
+/dev/block/platform/bootdevice/by-name/protect1     /mnt/vendor/protect_f ext4  wait,check,formattable
+/dev/block/platform/bootdevice/by-name/protect2     /mnt/vendor/protect_s ext4  wait,check,formattable
+/dev/block/platform/bootdevice/by-name/nvdata       /mnt/vendor/nvdata     ext4  wait,check,formattable
+/dev/block/platform/bootdevice/by-name/nvcfg        /mnt/vendor/nvcfg      ext4  wait,check,formattable
+/dev/block/platform/bootdevice/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
