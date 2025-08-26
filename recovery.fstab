@@ -22,8 +22,3 @@ system_ext  /system_ext     erofs   ro      wait,slotselect,logical
 /dev/block/by-name/nvdata       /mnt/vendor/nvdata     ext4  wait,check,formattable
 /dev/block/by-name/nvcfg        /mnt/vendor/nvcfg      ext4  wait,check,formattable
 /dev/block/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
-
-# Boot and AVB partitions
-/dev/block/by-name/boot         /boot                  emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  defaults slotselect,nofail
