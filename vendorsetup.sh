@@ -32,7 +32,6 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_USE_SED_BINARY=1
 	export FOX_USE_TAR_BINARY=1
 	export OF_SKIP_MULTIUSER_FOLDERS_BACKUP=1
-	export OF_CLOCK_POS=1
 	export FOX_DELETE_AROMAFM=1
 	export OF_USE_GREEN_LED=1
 	export FOX_ENABLE_APP_MANAGER=1
@@ -66,10 +65,9 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
     export FOX_BUILD_TYPE="Unofficial"
     export FOX_VARIANT=HYPEROS
     export OF_PATCH_AVB20=1
-    export OF_MAINTAINER="ツ๛abrohim๛"
+    	export OF_MAINTAINER="ツ๛abrohim๛"
 	export OF_ADVANCED_SECURITY=1
 	export OF_USE_TWRP_SAR_DETECT=1
-	export FOX_VIRTUAL_AB_DEVICE=1
 
 	# run a process after formatting data to work-around MTP issues
 	export OF_RUN_POST_FORMAT_PROCESS=1
