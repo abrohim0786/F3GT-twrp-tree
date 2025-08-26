@@ -8,8 +8,8 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 /dev/block/by-name/metadata   /metadata   ext4    wait,check,formattable
 
 # Data partition (FBEv2: crypto footer lives in /metadata/vold/metadata_encryption)
-/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
-/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption
+/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption
 
 # Cache and vendor partitions
 /dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
@@ -20,6 +20,6 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 /dev/block/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
 
 # Boot and AVB partitions
-/dev/block/by-name/boot         /boot                  emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  defaults slotselect,nofail
+/dev/block/by-name/boot         /boot                  emmc  defaults slotselect
+/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect
+/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  defaults slotselect
