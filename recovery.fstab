@@ -12,8 +12,8 @@ system_ext  /system_ext     erofs   ro      wait,slotselect,logical
 /dev/block/platform/bootdevice/by-name/metadata   /metadata   ext4    wait,check,formattable
 
 # Data partition (FBEv2: crypto footer lives in /metadata/vold/metadata_encryption)
-/dev/block/platform/bootdevice/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
-/dev/block/platform/bootdevice/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts,aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+/dev/block/platform/bootdevice/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption
+/dev/block/platform/bootdevice/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption
 
 # Cache and vendor partitions
 /dev/block/platform/bootdevice/by-name/rescue       /cache              ext4    wait,check,formattable
