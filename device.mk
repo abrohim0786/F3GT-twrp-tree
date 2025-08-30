@@ -22,10 +22,9 @@ PRODUCT_SHIPPING_API_LEVEL := 31
 # Dynamic
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Enable A/B support
-ENABLE_VIRTUAL_AB := true
-AB_OTA_UPDATER := true
-AB_OTA_PARTITIONS := boot system vendor product system_ext vbmeta_system vbmeta_vendor
+# Disable A/B until stable
+ENABLE_VIRTUAL_AB := false
+AB_OTA_UPDATER := false
 
 # Remove conflicting OTA packages
 #PRODUCT_PACKAGES += \
@@ -35,6 +34,7 @@ AB_OTA_PARTITIONS := boot system vendor product system_ext vbmeta_system vbmeta_
 #    update_verifier
 
 # Boot control HAL
+
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-impl.recovery \
     android.hardware.boot@1.2-impl
@@ -48,31 +48,24 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service \
     android.hardware.health@2.1-impl
     
-# Crypto and keymaster for FBE decryption
+# Additional target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
-    libpuresoftkeymasterdevice \
-    libkeymaster4_1 \
-    libkeystore-engine-wifi-hidl
+    libpuresoftkeymasterdevice
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4_1.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so
-
-# Use system vold for decryption
-TW_CRYPTO_USE_SYSTEM_VOLD := true
-TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
 DEVICE_RESOLUTION := 1080x1920
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_MAX_BRIGHTNESS := 2047
-TW_DEFAULT_BRIGHTNESS := 1200
-TW_SCREEN_BLANK_ON_BOOT := true
+TW_DEFAULT_BRIGHTNESS := 800
+# TW_SCREEN_BLANK_ON_BOOT := true  # Removed to prevent splash hang
 TW_NO_SCREEN_BLANK := true
+
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.usb0/lun.%d/file
 TW_EXCLUDE_DEFAULT_USB_INIT := true
@@ -82,20 +75,10 @@ TWRP_INCLUDE_LOGCAT := true
 TARGET_USES_LOGD := true
 TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_REPACKTOOLS := true
-TW_EXCLUDE_APEX := true
+# TW_EXCLUDE_APEX := true
 TARGET_USES_MKE2FS := true
 USE_RECOVERY_INSTALLER := true
 RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
-
-# Logical partitions support in recovery UI
-TW_INCLUDE_LOGICAL := true
-
-# Filesystem tools
-TW_INCLUDE_F2FS := true
-TARGET_USERIMAGES_USE_F2FS := true
-
-# FastbootD
-TW_INCLUDE_FASTBOOTD := true
 
 # StatusBar
 TW_STATUS_ICONS_ALIGN := center
