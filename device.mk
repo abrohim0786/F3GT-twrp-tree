@@ -53,13 +53,23 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
     libpuresoftkeymasterdevice \
     libkeymaster4_1 \
-    libkeystore-engine-wifi-hidl
+    libkeystore-engine-wifi-hidl \
+    libcrypto \
+    libssl \
+    libvold \
+    libfscrypt \
+    libf2fs_sparseblock
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4_1.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libcrypto.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libssl.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libvold.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libfscrypt.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libf2fs_sparseblock.so
 
 # Use system vold for decryption
 TW_CRYPTO_USE_SYSTEM_VOLD := true
@@ -93,6 +103,26 @@ TW_INCLUDE_LOGICAL := true
 # Filesystem tools
 TW_INCLUDE_F2FS := true
 TARGET_USERIMAGES_USE_F2FS := true
+# Additional filesystem support
+TW_INCLUDE_NTFS_3G := true
+TW_INCLUDE_EXFAT := true
+TW_INCLUDE_FUSE_EXFAT := true
+# Fix for data mounting issues
+TW_CRYPTO_USE_SYSTEM_VOLD := true
+TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+TW_CRYPTO_REAL_BLKDEV := "/dev/block/platform/bootdevice/by-name/userdata"
+TW_CRYPTO_MNT_POINT := "/data"
+TW_CRYPTO_FS_TYPE := "f2fs"
+TW_CRYPTO_FS_OPTIONS := "rw,seclabel,nosuid,nodev,noatime,inline_xattr,inline_data,inline_dentry,flush_merge,data_flush,extent_cache,mode=adaptive,active_logs=6,alloc_mode=default,fsync_mode=posix,barrier=1,user_xattr,acl"
+TW_CRYPTO_FS_FLAGS := "0x00000406"
+TW_CRYPTO_KEY_LOC := "footer"
+TW_CRYPTO_KEY_DIR := "/metadata/vold/metadata_encryption"
+# Additional recovery flags
+TW_EXCLUDE_ENCRYPTED_BACKUPS := true
+TW_EXCLUDE_APEX := true
+TW_INCLUDE_LOGICAL := true
+TW_INCLUDE_RESETPROP := true
+TW_INCLUDE_REPACKTOOLS := true
 
 # FastbootD
 TW_INCLUDE_FASTBOOTD := true

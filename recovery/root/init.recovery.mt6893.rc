@@ -17,6 +17,15 @@ on post-fs
     symlink /dev/block/mmcblk0boot0 /dev/block/platform/bootdevice/by-name/preloader_a
     symlink /dev/block/mmcblk0boot1 /dev/block/platform/bootdevice/by-name/preloader_b
 
+    # Fix for data partition mounting issues
+    # Create additional symlinks for data partition
+    symlink /dev/block/sdc75 /dev/block/platform/bootdevice/by-name/userdata
+    symlink /dev/block/sdc75 /dev/block/by-name/userdata
+    
+    # Ensure metadata partition is accessible
+    symlink /dev/block/sdc74 /dev/block/platform/bootdevice/by-name/metadata
+    symlink /dev/block/sdc74 /dev/block/by-name/metadata
+
     # Support A/B feature for combo emmc and ufs OTA update
     symlink /dev/block/platform/bootdevice/by-name/preloader_a /dev/block/platform/bootdevice/by-name/preloader_emmc_a
     symlink /dev/block/platform/bootdevice/by-name/preloader_b /dev/block/platform/bootdevice/by-name/preloader_emmc_b
@@ -125,6 +134,15 @@ on property:twrp.decrypt.done=true
 # Haptic feedback 
 on property:twrp.modules.loaded=true 
     start vibratorfeature-hal-service
+
+# Data partition mounting fix
+on property:ro.crypto.state=encrypted
+    exec u:r:recovery:s0 root root -- /system/bin/sh -c "mkdir -p /metadata/vold/metadata_encryption"
+    exec u:r:recovery:s0 root root -- /system/bin/sh -c "chmod 700 /metadata/vold/metadata_encryption"
+
+on property:ro.crypto.state=unencrypted
+    exec u:r:recovery:s0 root root -- /system/bin/sh -c "mount -t f2fs /dev/block/sdc75 /data"
+    exec u:r:recovery:s0 root root -- /system/bin/sh -c "mount -t ext4 /dev/block/sdc75 /data"
 
 on boot
     start boot-hal-1-2

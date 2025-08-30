@@ -97,6 +97,16 @@ TW_INCLUDE_FBE := true
 BOARD_USES_METADATA_PARTITION := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
 TW_USE_FSCRYPT_POLICY := v2
+# Add these lines to fix FBE issues
+TW_CRYPTO_USE_SYSTEM_VOLD := true
+TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
+TW_CRYPTO_REAL_BLKDEV := "/dev/block/platform/bootdevice/by-name/userdata"
+TW_CRYPTO_MNT_POINT := "/data"
+TW_CRYPTO_FS_TYPE := "f2fs"
+TW_CRYPTO_FS_OPTIONS := "rw,seclabel,nosuid,nodev,noatime,inline_xattr,inline_data,inline_dentry,flush_merge,data_flush,extent_cache,mode=adaptive,active_logs=6,alloc_mode=default,fsync_mode=posix,barrier=1,user_xattr,acl"
+TW_CRYPTO_FS_FLAGS := "0x00000406"
+TW_CRYPTO_KEY_LOC := "footer"
+TW_CRYPTO_KEY_DIR := "/metadata/vold/metadata_encryption"
 
 # fstab
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
@@ -130,6 +140,10 @@ BOARD_SUPPRESS_SECURE_ERASE := true
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 BOARD_USES_RECOVERY_AS_BOOT := true
 TARGET_NO_RECOVERY := true
+# Additional recovery debugging
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true
+TW_CRYPTO_SYSTEM_VOLD_DEBUG := true
 
 # Root
 BOARD_ROOT_EXTRA_FOLDERS += cust

@@ -9,6 +9,8 @@
 /dev/block/sda                                   0660    root    system
 /dev/block/sdb                                   0660    root    system
 /dev/block/sdc                                   0660    root    system
+/dev/block/sdc74                                 0660    root    system
+/dev/block/sdc75                                 0660    root    system
 
 # eMMC/UFS common
 /dev/block/by-name/misc2     0660    root    system
@@ -181,3 +183,9 @@
 #elliptic sensor
 /dev/elliptic0            0644   system     system
 /dev/elliptic1            0644   system     system
+
+# Data and metadata partition permissions
+/dev/block/platform/bootdevice/by-name/userdata     0660    root    system
+/dev/block/platform/bootdevice/by-name/metadata     0660    root    system
+/dev/block/by-name/userdata                          0660    root    system
+/dev/block/by-name/metadata                          0660    root    system
