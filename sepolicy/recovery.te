@@ -1,0 +1,15 @@
+# TWRP Recovery policy
+type recovery, domain;
+type recovery_exec, exec_type, file_type;
+
+# Allow recovery to mount data and metadata
+allow recovery block_device:blk_file { read write open };
+allow recovery metadata_file:dir { search };
+allow recovery userdata_file:dir { search };
+
+# Allow recovery to use keymaster
+allow recovery keystore_service:service_manager find;
+allow recovery keymaster_service:service_manager find;
+
+# Allow recovery to use F2FS tools
+allow recovery self:capability { sys_admin sys_rawio };

@@ -1,0 +1,5 @@
+# TWRP Recovery file contexts
+/dev/block/by-name/userdata    u:object_r:block_device:s0
+/dev/block/by-name/metadata    u:object_r:block_device:s0
+/metadata(/.*)?                u:object_r:metadata_file:s0
+/data(/.*)?                    u:object_r:userdata_file:s0

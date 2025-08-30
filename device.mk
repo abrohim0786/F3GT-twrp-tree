@@ -51,11 +51,17 @@ PRODUCT_PACKAGES += \
 # Additional target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
-    libpuresoftkeymasterdevice
+    libpuresoftkeymasterdevice \
+    libfscrypt \
+    libf2fs_fmt \
+    libf2fs_repair
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libfscrypt.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libf2fs_fmt.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libf2fs_repair.so
 
 # TWRP UI Configuration
 TW_THEME := portrait_hdpi
@@ -65,6 +71,20 @@ TW_MAX_BRIGHTNESS := 2047
 TW_DEFAULT_BRIGHTNESS := 800
 # TW_SCREEN_BLANK_ON_BOOT := true  # Removed to prevent splash hang
 TW_NO_SCREEN_BLANK := true
+
+# Additional TWRP flags to prevent splash hang
+TW_USE_TOOLBOX := true
+TW_EXCLUDE_TZDATA := true
+TW_EXCLUDE_BASH := true
+TW_EXCLUDE_NANO := true
+TW_EXCLUDE_VIM := true
+TW_EXCLUDE_TAR := true
+TW_EXCLUDE_GREP := true
+TW_EXCLUDE_GETPROP := true
+TW_EXCLUDE_SETPROP := true
+TW_EXCLUDE_CPIO := true
+TW_EXCLUDE_TAR := true
+TW_EXCLUDE_DEBUG_TOOLS := true
 
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.usb0/lun.%d/file

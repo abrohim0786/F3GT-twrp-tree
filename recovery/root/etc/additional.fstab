@@ -1,0 +1,11 @@
+# Additional fstab for dynamic partitions and data mounting
+# This file helps TWRP handle the data partition mounting properly
+
+# Data partition with proper flags
+/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption,first_stage_mount,latemount,reservedsize=128m,checkpoint=fs,fsverity
+
+# Fallback for ext4
+/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption,first_stage_mount,latemount,reservedsize=128m,checkpoint=fs,fsverity
+
+# Product data-app partition
+/product/data-app   /product/data-app   none    bind    wait
