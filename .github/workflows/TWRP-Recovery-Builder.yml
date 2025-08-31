@@ -1,36 +1,34 @@
-name: TWRP Recovery Builder by ツ๛abrohim๛
+name: OrangeFox [OFRP]
 
 on:
   workflow_dispatch:
     inputs:
       MANIFEST_BRANCH:
-        description: 'TWRP Minimal-Manifest Branch'
+        description: 'OrangeFox Manifest Branch'
         required: true
-        default: 'twrp-12.1'
+        default: '12.1'
         type: choice
         options:
-        - twrp-14.1
-        - twrp-12.1
-        - twrp-11
-        - twrp-9.0
+        - 12.1
+        - 11.0
       DEVICE_TREE:
-        description: 'Custom Recovery Tree' 
+        description: 'Custom Recovery Tree'
         required: true
         default: 'https://github.com/abrohim0786/F3GT-twrp-tree.git'
       DEVICE_TREE_BRANCH:
-        description: 'Custom Recovery Tree Branch' 
+        description: 'Custom Recovery Tree Branch (use master if default)'
         required: true
-        default: 'main'
-      DEVICE_PATH:
-        description: 'Specify your Device Path' 
-        required: true
-        default: 'device/xiaomi/ares'
+        default: ''
       DEVICE_NAME:
-        description: 'Specify your Device Codename' 
+        description: 'Specify your Device Codename' # As is, just like your PRODUCT_DEVICE in your device tree.
         required: true
         default: 'ares'
+      DEVICE_PATH:
+        description: 'Specify your Device Path (Check the DEVICE_PATH in BoardConfig.mk)' # As is, just like your DEVICE_PATH in your BoardConfig.mk
+        required: true
+        default: 'device/xiaomi/ares'
       BUILD_TARGET:
-        description: 'Specify your Build Target' 
+        description: 'Specify your Build Target' # The image suffix will be added later in build step.
         required: true
         default: 'boot'
         type: choice
@@ -39,209 +37,131 @@ on:
         - recovery
         - vendorboot
       LDCHECK:
-        description: 'Path of blobs to check' 
+        description: 'Use LDCHECK'
+        required: false
+        default: 'false'
+        type: boolean
+      LDCHECKPATH:
+        description: 'Path of blobs to check' # Use it know what kind of dependencies your missing for decryption blobs.
         required: true
         default: 'system/bin/qseecomd'
-      RECOVERY_INSTALLER:
-        description: 'Include recovery installer.zip'
-        type: boolean
-        required: true
-        default: true
 
 jobs:
   build:
-    name: Build TWRP by ツ๛abrohim๛
+    name: Build OFRP by ${{ github.actor }}
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      BUILD_AUTHOR: "ツ๛abrohim๛"
+      ORANGEFOX_ROOT: ${{ github.workspace }}/OrangeFox/fox_${{ inputs.MANIFEST_BRANCH }}
+      OUTPUT_DIR: ${{ github.workspace }}/OrangeFox/fox_${{ inputs.MANIFEST_BRANCH }}/out/target/product/${{ inputs.DEVICE_NAME }}
+
     permissions:
       contents: write
-
     steps:
-    - name: Check Out Repository
+    - name: Checkout
       uses: actions/checkout@v4
-      
-    - name: Display Build Configuration
-      run: |
-        echo "::group::📱 TWRP Build Configuration"
-        echo "Builder: ${{ env.BUILD_AUTHOR }}"
-        echo "Manifest Branch: ${{ github.event.inputs.MANIFEST_BRANCH }}"
-        echo "Device Tree: ${{ github.event.inputs.DEVICE_TREE }}"
-        echo "Device Branch: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}"
-        echo "Device Path: ${{ github.event.inputs.DEVICE_PATH }}"
-        echo "Device Name: ${{ github.event.inputs.DEVICE_NAME }}"
-        echo "Build Target: ${{ github.event.inputs.BUILD_TARGET }}"
-        echo "::endgroup::"
-
-    - name: Cleanup Workspace
+              
+    - name: Clean-up
       uses: rokibhasansagar/slimhub_actions@main
-      
-    - name: Free Disk Space
-      run: |
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        sudo docker rmi $(sudo docker images -q) || true
 
-    - name: Set Swap Space
+    - name: Swap Space
       uses: pierotofy/set-swap-space@master
       with:
-        swap-size-gb: 24
-        
-    - name: Install Build Dependencies
+        swap-size-gb: 12
+      
+    - name: Build Environment
       run: |
-        sudo apt update
-        sudo apt -y upgrade
-        sudo dpkg --add-architecture i386
-        sudo apt update
-        sudo apt -y install gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib \
-          ncurses-dev x11proto-core-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc \
-          ccache lib32readline-dev lib32z1-dev liblz4-tool libsdl1.2-dev libwxgtk3.2-dev lzop \
-          pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static \
-          libstdc++-10-dev libtinfo6 libgflags-dev
-        sudo add-apt-repository universe
-        sudo apt -y install libncurses6 libncurses6:i386
-        
-    - name: Install Java JDK
-      uses: actions/setup-java@v4
+        sudo apt install aria2 -y
+        git clone https://gitlab.com/OrangeFox/misc/scripts.git
+        cd scripts
+        sudo bash setup/android_build_env.sh
+
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
-        distribution: zulu
-        java-version: 8
-
-    - name: Install Repo Tool
+        max-size: "10G"
+      
+    - name: Set-up Manifest # For github workspace use single {}
       run: |
-        mkdir ~/bin
-        curl -s https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        chmod a+x ~/bin/repo
-        sudo ln -sf ~/bin/repo /usr/bin/repo
-
-    - name: Select Manifest Source
-      uses: haya14busa/action-cond@v1
-      id: manifest
-      with:
-        cond: ${{ github.event.inputs.MANIFEST_BRANCH == 'twrp-11' || github.event.inputs.MANIFEST_BRANCH == 'twrp-12.1'  || github.event.inputs.MANIFEST_BRANCH == 'twrp-14.1' }}
-        if_true: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git
-        if_false: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git
-
-    - name: Initialize Repo
-      run: |
-        mkdir workspace
-        cd workspace
-        git config --global user.name "${{ env.BUILD_AUTHOR }}"
-        git config --global user.email "callofduty.pubg786@gmail.com"
-        repo init --depth=1 -u ${{ steps.manifest.outputs.value }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
-  
-    - name: Sync Source Code
-      run: |
-        cd workspace
-        repo sync -j$(nproc --all) --force-sync
-
+        mkdir -p ${GITHUB_WORKSPACE}/OrangeFox
+        cd ${GITHUB_WORKSPACE}/OrangeFox
+        git config --global user.name "ツ๛abrohim๛"
+        git config --global user.email "callofduty.pubg786@gmail.com
+        git clone https://gitlab.com/OrangeFox/sync.git -b master
+        cd sync
+        ./orangefox_sync.sh --branch ${{ inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ inputs.MANIFEST_BRANCH }}
+      
     - name: Clone Device Tree
       run: |
-        cd workspace
-        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
-        cd ${{ github.event.inputs.DEVICE_PATH }}
+        cd ${{ env.ORANGEFOX_ROOT }}
+        git clone https://github.com/abrohim0786/Poco-F3-GT-Tree-for-twrp.git -b Poco_12.1 ./device/xiaomi/ares
+        cd device/xiaomi/ares
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-    - name: Find Makefile
+    - name: Building OrangeFox
       run: |
-        cd workspace
-        if [ -f ${{ github.event.inputs.DEVICE_PATH }}/twrp_${{ github.event.inputs.DEVICE_NAME}}.mk ]; then
-            echo "DEVICE_MAKEFILE=twrp_${{ github.event.inputs.DEVICE_NAME }}" >> $GITHUB_ENV
-        elif [ -f ${{ github.event.inputs.DEVICE_PATH }}/omni_${{ github.event.inputs.DEVICE_NAME}}.mk ]; then
-            echo "DEVICE_MAKEFILE=omni_${{ github.event.inputs.DEVICE_NAME }}" >> $GITHUB_ENV
-        else
-            echo "::warning::No recovery makefile found!"
-        fi
-      continue-on-error: true
-      
-    - name: Install Python 2 (Legacy Branches)
-      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14'
-      run: |
-        sudo apt -y install python2
-        sudo ln -sf /usr/bin/python2 /usr/bin/python
-
-    - name: Build Recovery Image 
-      run: |
-        cd workspace
+        pushd ${{ env.ORANGEFOX_ROOT }}
+        set +e
+        rm -rf out
+        make clean
+        export USE_CCACHE=1
+        export CCACHE_EXEC=/usr/bin/ccache
+        sed -i 's/return sandboxConfig\.working/return false/g' build/soong/ui/build/sandbox_linux.go
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch ${{ env.DEVICE_MAKEFILE }}-eng
-        make clean
-        make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all)
-        echo "✅ Build completed: ${{ github.event.inputs.BUILD_TARGET }}.img"
-      
-    - name: Set Build Metadata
-      run: |
-        echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-        echo "BUILD_TIME=$(date +%H%M)" >> $GITHUB_ENV
-        DEVICE_TREE_URL="${{ github.event.inputs.DEVICE_TREE }}"
-        if [[ "${DEVICE_TREE_URL}" == *.git ]]; then
-          DEVICE_TREE_URL="${DEVICE_TREE_URL%.git}"
-        fi
-        echo "DEVICE_TREE_URL=${DEVICE_TREE_URL}" >> $GITHUB_ENV
+        set -e
+        lunch twrp_${{ inputs.DEVICE_NAME }}-eng && make clean && mka adbd ${{ inputs.BUILD_TARGET }}image
+        popd
 
-    - name: Locate Output Files
+    - name: Set Build Date # Build date in UTC
       run: |
-        cd workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}
-        if [ -f recovery.img ]; then
-            echo "RECOVERY_TYPE=recovery" >> $GITHUB_ENV
-            echo "RECOVERY_FILE=recovery.img" >> $GITHUB_ENV
-            echo "MD5_IMG=$(md5sum recovery.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
-        elif [ -f boot.img ]; then
-            echo "RECOVERY_TYPE=boot" >> $GITHUB_ENV
-            echo "RECOVERY_FILE=boot.img" >> $GITHUB_ENV
-            echo "MD5_IMG=$(md5sum boot.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
-        elif [ -f vendor_boot.img ]; then
-            echo "RECOVERY_TYPE=vendor_boot" >> $GITHUB_ENV
-            echo "RECOVERY_FILE=vendor_boot.img" >> $GITHUB_ENV
-            echo "MD5_IMG=$(md5sum vendor_boot.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
+        echo "BUILD_DATE=$(TZ=UTC date +%Y%m%d)" >> $GITHUB_ENV
+
+    - name: Check if the recovery exists # It makes the recovery.img and renames it to Orangefox*.img but the OG should also work
+      if: always()
+      run: |
+        img_file=$(find "${{ env.OUTPUT_DIR }}" -name "${{ inputs.BUILD_TARGET }}*.img" -print -quit)
+        zip_file=$(find "${{ env.OUTPUT_DIR }}" -name "OrangeFox*.zip" -print -quit)
+        if [ -f "$img_file" ]; then
+            echo "CHECK_IMG_IS_OK=true" >> $GITHUB_ENV
+            echo "MD5_IMG=$(md5sum "$img_file" | cut -d ' ' -f 1)" >> $GITHUB_ENV
         else
-            echo "::error::No recovery file found in output directory!"
-            exit 1
+            echo "Recovery out directory is empty."
+        fi
+        if [ -f "$zip_file" ]; then
+            echo "CHECK_ZIP_IS_OK=true" >> $GITHUB_ENV
+            echo "MD5_ZIP=$(md5sum "$zip_file" | cut -d ' ' -f 1)" >> $GITHUB_ENV
+        else
+            echo "::warning::The zip file isn't present but make sure the image is from only after 100% completion in build stage"
         fi
 
-    - name: Add Recovery Installer
-      if: ${{ github.event.inputs.RECOVERY_INSTALLER }}
-      run: |
-        cd workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}
-        wget -q https://github.com/kinguser981/recovery-installer/releases/download/zip/recovery-installer.zip
-        zip -ur recovery-installer.zip ${{ env.RECOVERY_FILE }}
-        echo "INSTALLER_EXISTS=true" >> $GITHUB_ENV
-      continue-on-error: true
-        
-    - name: Upload to GitHub Release
-      uses: softprops/action-gh-release@v1
-      id: create_release
+    - name: Upload to Release
+      if: env.CHECK_IMG_IS_OK == 'true'
+      uses: softprops/action-gh-release@master
       with:
         files: |
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ env.RECOVERY_FILE }}
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery-installer.zip
-        name: "TWRP ${{ env.RECOVERY_TYPE }} for ${{ github.event.inputs.DEVICE_NAME }} (${{ env.BUILD_DATE }})"
-        tag_name: "${{ github.event.inputs.DEVICE_NAME }}-${{ env.BUILD_DATE }}-${{ env.BUILD_TIME }}"
+          ${{ env.OUTPUT_DIR }}/OrangeFox*.img
+          ${{ env.OUTPUT_DIR }}/OrangeFox*.tar
+          ${{ env.OUTPUT_DIR }}/OrangeFox*.zip
+          ${{ env.OUTPUT_DIR }}/ramdisk-recovery.*
+        name: Unofficial OrangeFox for ${{ inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+        tag_name: ${{ github.run_id }}
         body: |
-          ### 🛠 TWRP Recovery by ${{ env.BUILD_AUTHOR }}
-          **📱 Device:** ${{ github.event.inputs.DEVICE_NAME }}  
-          **🔧 Build Type:** ${{ env.RECOVERY_TYPE }}  
-          **📅 Build Date:** ${{ env.BUILD_DATE }} ${{ env.BUILD_TIME }}  
-          
-          **🔗 Source Information:**  
-          - Manifest: ${{ github.event.inputs.MANIFEST_BRANCH }}  
-          - Device Tree: [${{ github.event.inputs.DEVICE_TREE_BRANCH }}](${{ env.DEVICE_TREE_URL }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }})  
-          - Commit: [${{ env.COMMIT_ID }}](${{ env.DEVICE_TREE_URL }}/commit/${{ env.COMMIT_ID }})  
-          
-          **🔒 MD5:** `${{ env.MD5_IMG }}`
+          Build: ${{ inputs.MANIFEST_BRANCH }}
+          Device: [Device Tree/Branch](${{ inputs.DEVICE_TREE }}/tree/${{ inputs.DEVICE_TREE_BRANCH }})
+          Commit: Most recent [commit](${{ inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
+          MD5 (img): ${{ env.MD5_IMG }}
+          MD5 (zip): ${{ env.MD5_ZIP }}
+        prerelease: true
 
-    - name: Check Dependencies
+    - name: Run LDCheck
+      if: inputs.LDCHECK == 'true'
       run: |
-        if [ -d "tools" ]; then
-          cd tools
-          mkdir -p ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
-          [ -f libneeds ] && cp libneeds ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
-          [ -f ldcheck ] && cp ldcheck ${GITHUB_WORKSPACE}/workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root/
-          cd ../workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root
-          python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ github.event.inputs.LDCHECK }}
-        fi
-        echo "Dependency check completed"
+        cd tools
+        mv -n libneeds ${GITHUB_WORKSPACE}/${{ env.OUTPUT_DIR }}/${{ inputs.DEVICE_NAME }}/recovery/root/
+        mv -n ldcheck ${GITHUB_WORKSPACE}/${{ env.OUTPUT_DIR }}/${{ inputs.DEVICE_NAME }}/recovery/root/
+        cd ${GITHUB_WORKSPACE}/${{ env.OUTPUT_DIR }}/${{ inputs.DEVICE_NAME }}/recovery/root
+        python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ inputs.LDCHECKPATH }}
+        echo "Done checking missing dependencies. Review, and reconfigure your tree."
       continue-on-error: true
-      
