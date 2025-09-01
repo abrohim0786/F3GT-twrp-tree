@@ -1,0 +1,44 @@
+# OrangeFox Recovery Fixes for Ares Device
+# Fixes splash screen hang and data mount issues
+
+on early-init
+    # Set properties to prevent splash screen hang
+    setprop ro.twrp.boot_completed 0
+    setprop ro.twrp.splash_done 0
+
+on init
+    # Fix brightness path
+    write /sys/class/leds/lcd-backlight/brightness 1200
+    
+    # Set crypto properties
+    setprop ro.crypto.type file
+    setprop ro.crypto.state encrypted
+    setprop ro.crypto.allow_encrypt_override true
+
+on post-fs-data
+    # Ensure data directory exists
+    mkdir /data 0755 system system
+    mkdir /data/media 0755 media_rw media_rw
+    mkdir /data/media/0 0755 media_rw media_rw
+    
+    # Create Fox backup directory
+    mkdir /data/media/Fox 0755 media_rw media_rw
+    mkdir /data/media/Fox/BACKUPS 0755 media_rw media_rw
+
+on property:ro.twrp.boot_completed=1
+    # Mark splash screen as done
+    setprop ro.twrp.splash_done 1
+
+# Service to handle data mount timeout
+service data_mount_timeout /system/bin/sleep 10
+    oneshot
+    disabled
+
+# Service to fix graphics initialization
+service graphics_fix /system/bin/setprop ro.surface_flinger.force_hwc_copy_for_virtual_displays 1
+    oneshot
+    disabled
+
+on boot
+    start graphics_fix
+    start data_mount_timeout

@@ -53,13 +53,27 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     libkeymaster4 \
     libpuresoftkeymasterdevice \
     libkeymaster4_1 \
-    libkeystore-engine-wifi-hidl
+    libkeystore-engine-wifi-hidl \
+    libkeymaster_messages \
+    libkeymaster_portable \
+    libsoftkeymasterdevice \
+    libgatekeeper \
+    libhidlbase \
+    libhidltransport \
+    libhwbinder
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4_1.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeystore-engine-wifi-hidl.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster_messages.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster_portable.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libsoftkeymasterdevice.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libgatekeeper.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhidlbase.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhidltransport.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libhwbinder.so
 
 # Use system vold for decryption
 TW_CRYPTO_USE_SYSTEM_VOLD := true
@@ -71,7 +85,7 @@ DEVICE_RESOLUTION := 1080x1920
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_MAX_BRIGHTNESS := 2047
 TW_DEFAULT_BRIGHTNESS := 1200
-TW_SCREEN_BLANK_ON_BOOT := true
+TW_SCREEN_BLANK_ON_BOOT := false
 TW_NO_SCREEN_BLANK := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.usb0/lun.%d/file
@@ -86,6 +100,12 @@ TW_EXCLUDE_APEX := true
 TARGET_USES_MKE2FS := true
 USE_RECOVERY_INSTALLER := true
 RECOVERY_INSTALLER_PATH := $(DEVICE_PATH)/installer
+
+# Fix splash screen hang issues
+TW_IGNORE_MAJOR_MINOR_XML := true
+TW_IGNORE_MISC_WIPE_DATA := true
+TW_CRYPTO_FORCE_DISABLE_TWEAKS := true
+TW_CRYPTO_SYSTEM_VOLD_DISABLE_TIMEOUT := true
 
 # Logical partitions support in recovery UI
 TW_INCLUDE_LOGICAL := true
