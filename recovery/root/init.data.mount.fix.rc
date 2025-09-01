@@ -1,0 +1,9 @@
+# Data Mount Fix for OrangeFox Recovery
+# Prevents splash screen hang when data partition fails to mount
+
+on early-init
+    setprop ro.twrp.data_mount_timeout 0
+
+on property:ro.twrp.data_mount_timeout=1
+    setprop ro.twrp.boot_completed 1
+    setprop ro.twrp.splash_done 1

@@ -30,7 +30,7 @@ on property:ro.twrp.boot_completed=1
     setprop ro.twrp.splash_done 1
 
 # Service to handle data mount timeout
-service data_mount_timeout /system/bin/sleep 10
+service data_mount_timeout /system/bin/sleep 15
     oneshot
     disabled
 
@@ -39,6 +39,16 @@ service graphics_fix /system/bin/setprop ro.surface_flinger.force_hwc_copy_for_v
     oneshot
     disabled
 
+# Service to force continue if data mount fails
+service force_continue /system/bin/setprop ro.twrp.data_mount_timeout 1
+    oneshot
+    disabled
+
 on boot
     start graphics_fix
     start data_mount_timeout
+    
+# Force continue after timeout to prevent splash screen hang
+on property:ro.twrp.data_mount_timeout=1
+    setprop ro.twrp.boot_completed 1
+    setprop ro.twrp.splash_done 1

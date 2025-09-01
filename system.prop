@@ -28,3 +28,9 @@ ro.crypto.dm_default_key.options_format.version=2
 # TWRP specific properties
 ro.twrp.boot_completed=0
 ro.twrp.splash_done=0
+ro.twrp.data_mount_timeout=0
+
+# Additional properties to fix splash screen hang
+ro.twrp.crypto_timeout=30
+ro.twrp.mount_timeout=30
+ro.twrp.force_continue=1

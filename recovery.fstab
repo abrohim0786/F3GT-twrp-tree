@@ -9,8 +9,9 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 
 # Data partition (FBEv2: crypto footer lives in /metadata/vold/metadata_encryption)
 # Try F2FS first, fallback to ext4 if F2FS fails
-/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,first_stage_mount
-/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,first_stage_mount
+# Added nofail flag to prevent mount failure from blocking recovery boot
+/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,first_stage_mount,nofail
+/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,first_stage_mount,nofail
 
 # Cache and vendor partitions
 /dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
