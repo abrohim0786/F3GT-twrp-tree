@@ -1,2 +1,0 @@
-Testing library/framework: pytest
-Rationale: No existing test framework detected in the repo. Tests validate vendorsetup.sh by sourcing it in an isolated bash shell and asserting exported environment variables across activation paths, negative case, and logging.
