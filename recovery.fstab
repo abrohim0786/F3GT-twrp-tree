@@ -7,11 +7,8 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 # Metadata partition (needed for FBE decryption)
 /dev/block/by-name/metadata   /metadata   ext4    wait,check,formattable
 
-# Data partition (FBEv2: crypto footer lives in /metadata/vold/metadata_encryption)
-# Try F2FS first, fallback to ext4 if F2FS fails
-# Added nofail flag to prevent mount failure from blocking recovery boot
-/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,first_stage_mount,nofail
-/dev/block/by-name/userdata   /data   ext4    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,first_stage_mount,nofail
+# Data partition with FBE encryption support
+/dev/block/by-name/userdata   /data   f2fs    wait,check,formattable,quota,latemount,resize,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption
 
 # Cache and vendor partitions
 /dev/block/by-name/rescue       /cache              ext4    wait,check,formattable
@@ -21,7 +18,11 @@ system_ext  /system_ext     ext4    ro      wait,slotselect,logical
 /dev/block/by-name/nvcfg        /mnt/vendor/nvcfg      ext4  wait,check,formattable
 /dev/block/by-name/persist      /mnt/vendor/persist    ext4  wait,check,formattable
 
-# Boot and AVB partitions
-/dev/block/by-name/boot         /boot                  emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  defaults slotselect,nofail
+# Bind mount for mi_ext
+/dev/block/by-name/mi_ext       /mnt/vendor/mi_ext     ext4  wait,nofail
+/mnt/vendor/mi_ext              /mi_ext                none  bind wait,nofail
+
+# Boot and AVB partitions - FIXED: changed defaults to wait
+/dev/block/by-name/boot         /boot                  emmc  wait,slotselect,nofail
+/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  wait,slotselect,nofail
+/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  wait,slotselect,nofail
