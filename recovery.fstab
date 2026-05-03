@@ -23,6 +23,6 @@ metadata    /metadata       ext4    wait,check,formattable
 /mnt/vendor/mi_ext              /mi_ext                none  bind wait,nofail
 
 # Boot and AVB partitions
-/dev/block/by-name/boot         /boot                  emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  defaults slotselect,nofail
-/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  defaults slotselect,nofail
+/dev/block/by-name/boot         /boot                  emmc  wait,slotselect,nofail
+/dev/block/by-name/vbmeta_vendor /vbmeta_vendor        emmc  wait,slotselect,nofail
+/dev/block/by-name/vbmeta_system /vbmeta_system        emmc  wait,slotselect,nofail
