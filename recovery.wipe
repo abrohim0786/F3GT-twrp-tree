@@ -2,6 +2,8 @@
 /dev/block/by-name/userdata
 /dev/block/by-name/cache
 /dev/block/by-name/persist
+
+# Additional partitions for proper recovery
 /dev/block/by-name/metadata
 /dev/block/by-name/protect1
 /dev/block/by-name/protect2
