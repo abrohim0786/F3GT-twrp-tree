@@ -38,7 +38,7 @@ on:
         - recovery
         - vendorboot
       LDCHECK:
-        description: 'Path of blobs to check' 
+        description: 'Path of blobs to check'
         required: true
         default: 'system/bin/qseecomd'
       RECOVERY_INSTALLER:
@@ -58,8 +58,8 @@ jobs:
       contents: write
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
     - name: Display Inputs
       run: |
@@ -70,6 +70,7 @@ jobs:
         echo "Device Path: ${{ github.event.inputs.DEVICE_PATH }}"
         echo "Device Name: ${{ github.event.inputs.DEVICE_NAME }}"
         echo "Build Target: ${{ github.event.inputs.BUILD_TARGET }}"
+        echo "Include Recovery Installer: ${{ github.event.inputs.RECOVERY_INSTALLER }}"
         echo "::endgroup::"
 
     - name: Clean Up Workspace
@@ -113,8 +114,54 @@ jobs:
         make clean
         make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all)
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+    - name: Generate MD5 Checksum
+      run: |
+        cd ${GITHUB_WORKSPACE}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}
+        if [ -f ${{ github.event.inputs.BUILD_TARGET }}.img ]; then
+          md5sum ${{ github.event.inputs.BUILD_TARGET }}.img > ${{ github.event.inputs.BUILD_TARGET }}.img.md5
+          cat ${{ github.event.inputs.BUILD_TARGET }}.img.md5
+        fi
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
       with:
         name: OrangeFox-${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_number }}
-        path: ${{ github.workspace }}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
+        path: |
+          ${{ github.workspace }}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
+          ${{ github.workspace }}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img.md5
+        retention-days: 30
+
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: OrangeFox-${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_number }}
+        path: ./build-output
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: success()
+      with:
+        tag_name: OrangeFox-${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_number }}
+        files: |
+          ./build-output/${{ github.event.inputs.BUILD_TARGET }}.img
+          ./build-output/${{ github.event.inputs.BUILD_TARGET }}.img.md5
+        body: |
+          **OrangeFox Recovery Build**
+          
+          - **Device**: ${{ github.event.inputs.DEVICE_NAME }}
+          - **Branch**: ${{ github.event.inputs.MANIFEST_BRANCH }}
+          - **Build Target**: ${{ github.event.inputs.BUILD_TARGET }}
+          - **Built by**: ${{ github.actor }}
+          - **Build Number**: ${{ github.run_number }}
+          - **Timestamp**: ${{ github.event.head_commit.timestamp }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build Summary
+      if: always()
+      run: |
+        echo "::group::Build Summary"
+        echo "✅ Build Status: ${{ job.status }}"
+        echo "Build Time: $(date)"
+        echo "Run ID: ${{ github.run_id }}"
+        echo "::endgroup::"
