@@ -6,12 +6,12 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: '12.1'
+        default: 'fox_12.1'
         type: choice
         options:
-        - 14.1
-        - 12.1
-        - 11.0
+        - fox_14.1
+        - fox_12.1
+        - fox_11.0
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
@@ -89,50 +89,116 @@ jobs:
         cd scripts
         sudo bash setup/android_build_env.sh
       
-    - name: Set Up Manifest
+    - name: Set Up Manifest with Retry
       run: |
-        mkdir -p ${GITHUB_WORKSPACE}/OrangeFox
-        cd ${GITHUB_WORKSPACE}/OrangeFox
-        git config --global user.name "abrohim0786"
-        git config --global user.email "callofduty.pubg786@gmail.com"
-        git clone https://gitlab.com/OrangeFox/sync.git
-        cd sync
-        git checkout ${{ github.event.inputs.MANIFEST_BRANCH }}
-        python3 sync.py --group_https --branch ${{ github.event.inputs.MANIFEST_BRANCH }}
+        set -e
+        BRANCH_NAME="${{ github.event.inputs.MANIFEST_BRANCH }}"
+        MAX_RETRIES=3
+        RETRY_COUNT=0
+        
+        echo "::group::OrangeFox Manifest Setup"
+        echo "Target Branch: ${BRANCH_NAME}"
+        echo "::endgroup::"
+        
+        while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+          RETRY_COUNT=$((RETRY_COUNT + 1))
+          echo "Attempt $RETRY_COUNT of $MAX_RETRIES..."
+          
+          mkdir -p ${GITHUB_WORKSPACE}/OrangeFox
+          cd ${GITHUB_WORKSPACE}/OrangeFox
+          
+          # Configure git
+          git config --global user.name "abrohim0786"
+          git config --global user.email "callofduty.pubg786@gmail.com"
+          git config --global core.filemode false
+          
+          # Clone OrangeFox sync repository
+          if [ -d "sync" ]; then
+            echo "Sync directory already exists, updating..."
+            cd sync
+            git remote set-url origin https://gitlab.com/OrangeFox/sync.git
+            git fetch origin
+          else
+            echo "Cloning OrangeFox sync repository..."
+            git clone https://gitlab.com/OrangeFox/sync.git
+            cd sync
+          fi
+          
+          # Verify branch exists
+          git fetch origin
+          if git show-ref --verify --quiet refs/remotes/origin/${BRANCH_NAME}; then
+            echo "✓ Branch ${BRANCH_NAME} found in remote"
+            git checkout -f ${BRANCH_NAME} || git checkout -f -b ${BRANCH_NAME} origin/${BRANCH_NAME}
+            break
+          else
+            echo "✗ Branch ${BRANCH_NAME} not found in remote"
+            echo "Available branches:"
+            git branch -r | grep -E "fox_|android-" || echo "No matching branches found"
+            
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+              echo "Retrying in 10 seconds..."
+              sleep 10
+            else
+              echo "::error::Failed to find valid OrangeFox branch after $MAX_RETRIES attempts"
+              exit 1
+            fi
+          fi
+        done
+        
+        # Run sync
+        echo "::group::Running OrangeFox sync"
+        python3 sync.py --group_https --branch ${BRANCH_NAME} || true
+        echo "::endgroup::"
 
     - name: Clone Device Tree
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox
-        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
+        echo "Cloning device tree from ${{ github.event.inputs.DEVICE_TREE }}..."
+        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} --depth 1 ./${{ github.event.inputs.DEVICE_PATH }}
+        echo "✓ Device tree cloned successfully"
 
     - name: Build OrangeFox Recovery
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox
+        echo "::group::Build Environment Setup"
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch ${{ github.event.inputs.DEVICE_NAME }}-eng
+        export LUNCHBOX_ALLOW_MISSING_DEPENDENCIES=true
+        echo "::endgroup::"
+        
+        echo "::group::Building ${{ github.event.inputs.BUILD_TARGET }}.img"
+        lunch ${{ github.event.inputs.DEVICE_NAME }}-user || lunch ${{ github.event.inputs.DEVICE_NAME }}-eng
         make clean
-        make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all)
+        make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all) 2>&1 | tee build.log
+        echo "::endgroup::"
 
     - name: Generate MD5 Checksum
+      if: success()
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}
         if [ -f ${{ github.event.inputs.BUILD_TARGET }}.img ]; then
           md5sum ${{ github.event.inputs.BUILD_TARGET }}.img > ${{ github.event.inputs.BUILD_TARGET }}.img.md5
+          echo "::group::Checksums"
           cat ${{ github.event.inputs.BUILD_TARGET }}.img.md5
+          echo "::endgroup::"
+        else
+          echo "::warning::Build image not found at expected location"
         fi
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: OrangeFox-${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_number }}
         path: |
           ${{ github.workspace }}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
           ${{ github.workspace }}/OrangeFox/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img.md5
         retention-days: 30
+        if-no-files-found: warn
 
     - name: Download Build Artifacts
       uses: actions/download-artifact@v4
+      if: success()
       with:
         name: OrangeFox-${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_number }}
         path: ./build-output
@@ -146,14 +212,14 @@ jobs:
           ./build-output/${{ github.event.inputs.BUILD_TARGET }}.img
           ./build-output/${{ github.event.inputs.BUILD_TARGET }}.img.md5
         body: |
-          **OrangeFox Recovery Build**
+          **OrangeFox Recovery Build Success! ✅**
           
           - **Device**: ${{ github.event.inputs.DEVICE_NAME }}
           - **Branch**: ${{ github.event.inputs.MANIFEST_BRANCH }}
           - **Build Target**: ${{ github.event.inputs.BUILD_TARGET }}
           - **Built by**: ${{ github.actor }}
           - **Build Number**: ${{ github.run_number }}
-          - **Timestamp**: ${{ github.event.head_commit.timestamp }}
+          - **Timestamp**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -161,7 +227,12 @@ jobs:
       if: always()
       run: |
         echo "::group::Build Summary"
-        echo "✅ Build Status: ${{ job.status }}"
-        echo "Build Time: $(date)"
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ Build completed successfully!"
+        else
+          echo "❌ Build failed with status: ${{ job.status }}"
+        fi
         echo "Run ID: ${{ github.run_id }}"
+        echo "Run Number: ${{ github.run_number }}"
+        echo "Timestamp: $(date -u)"
         echo "::endgroup::"
