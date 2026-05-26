@@ -4,14 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       MANIFEST_BRANCH:
-        description: 'OrangeFox Branch'
+        description: 'Upstream OrangeFox Branch - see logs for available values (e.g., fox_14.1, fox_12.1, fox_11.0, main)'
         required: true
         default: 'fox_12.1'
-        type: choice
-        options:
-        - fox_14.1
-        - fox_12.1
-        - fox_11.0
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
@@ -80,7 +75,7 @@ jobs:
       uses: pierotofy/set-swap-space@master
       with:
         swap-size-gb: 24
-      
+
     - name: Install Build Environment
       run: |
         sudo apt-get update
@@ -88,67 +83,44 @@ jobs:
         git clone https://gitlab.com/OrangeFox/misc/scripts
         cd scripts
         sudo bash setup/android_build_env.sh
-      
-    - name: Set Up Manifest with Retry
+
+    - name: List Available OrangeFox Upstream Branches
+      id: list_branches
       run: |
         set -e
+        rm -rf OF_sync_tmp
+        git clone --depth=1 --no-checkout https://gitlab.com/OrangeFox/sync.git OF_sync_tmp
+        cd OF_sync_tmp
+        git fetch origin
+        echo ">>> Available branches on upstream:"
+        git branch -r | sed 's/origin\\///g' | sort | uniq | tee /tmp/fox-branches.txt
+        echo "::notice file=sync.repo,line=1::Available OrangeFox branches:"
+        cat /tmp/fox-branches.txt | while read br; do echo " - $br"; done
+        echo "fox_branch=$(cat /tmp/fox-branches.txt | xargs)">>$GITHUB_OUTPUT
+
+    - name: Set Up Manifest
+      run: |
+        set -euo pipefail
         BRANCH_NAME="${{ github.event.inputs.MANIFEST_BRANCH }}"
-        MAX_RETRIES=3
-        RETRY_COUNT=0
-        
-        echo "::group::OrangeFox Manifest Setup"
-        echo "Target Branch: ${BRANCH_NAME}"
-        echo "::endgroup::"
-        
-        while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          RETRY_COUNT=$((RETRY_COUNT + 1))
-          echo "Attempt $RETRY_COUNT of $MAX_RETRIES..."
-          
-          mkdir -p ${GITHUB_WORKSPACE}/OrangeFox
-          cd ${GITHUB_WORKSPACE}/OrangeFox
-          
-          # Configure git
-          git config --global user.name "abrohim0786"
-          git config --global user.email "callofduty.pubg786@gmail.com"
-          git config --global core.filemode false
-          
-          # Clone OrangeFox sync repository
-          if [ -d "sync" ]; then
-            echo "Sync directory already exists, updating..."
-            cd sync
-            git remote set-url origin https://gitlab.com/OrangeFox/sync.git
-            git fetch origin
-          else
-            echo "Cloning OrangeFox sync repository..."
-            git clone https://gitlab.com/OrangeFox/sync.git
-            cd sync
-          fi
-          
-          # Verify branch exists
-          git fetch origin
-          if git show-ref --verify --quiet refs/remotes/origin/${BRANCH_NAME}; then
-            echo "✓ Branch ${BRANCH_NAME} found in remote"
-            git checkout -f ${BRANCH_NAME} || git checkout -f -b ${BRANCH_NAME} origin/${BRANCH_NAME}
-            break
-          else
-            echo "✗ Branch ${BRANCH_NAME} not found in remote"
-            echo "Available branches:"
-            git branch -r | grep -E "fox_|android-" || echo "No matching branches found"
-            
-            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-              echo "Retrying in 10 seconds..."
-              sleep 10
-            else
-              echo "::error::Failed to find valid OrangeFox branch after $MAX_RETRIES attempts"
-              exit 1
-            fi
-          fi
-        done
-        
-        # Run sync
-        echo "::group::Running OrangeFox sync"
-        python3 sync.py --group_https --branch ${BRANCH_NAME} || true
-        echo "::endgroup::"
+        cd ${GITHUB_WORKSPACE}
+        rm -rf OrangeFox
+        mkdir -p OrangeFox
+        cd OrangeFox
+        git config --global user.name "abrohim0786"
+        git config --global user.email "callofduty.pubg786@gmail.com"
+        git config --global core.filemode false
+        git clone https://gitlab.com/OrangeFox/sync.git
+        cd sync
+        echo ">>> Checking for branch: $BRANCH_NAME"
+        git fetch origin
+        if git ls-remote --heads origin "$BRANCH_NAME" | grep "$BRANCH_NAME"; then
+          git checkout -f $BRANCH_NAME || git checkout -f -b $BRANCH_NAME origin/$BRANCH_NAME
+        else
+          echo "::error::Branch '$BRANCH_NAME' not found in OrangeFox repo. Here are available branches:"
+          git branch -r
+          exit 1
+        fi
+        python3 sync.py --group_https --branch $BRANCH_NAME
 
     - name: Clone Device Tree
       run: |
@@ -165,7 +137,6 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         export LUNCHBOX_ALLOW_MISSING_DEPENDENCIES=true
         echo "::endgroup::"
-        
         echo "::group::Building ${{ github.event.inputs.BUILD_TARGET }}.img"
         lunch ${{ github.event.inputs.DEVICE_NAME }}-user || lunch ${{ github.event.inputs.DEVICE_NAME }}-eng
         make clean
@@ -213,7 +184,6 @@ jobs:
           ./build-output/${{ github.event.inputs.BUILD_TARGET }}.img.md5
         body: |
           **OrangeFox Recovery Build Success! ✅**
-          
           - **Device**: ${{ github.event.inputs.DEVICE_NAME }}
           - **Branch**: ${{ github.event.inputs.MANIFEST_BRANCH }}
           - **Build Target**: ${{ github.event.inputs.BUILD_TARGET }}
