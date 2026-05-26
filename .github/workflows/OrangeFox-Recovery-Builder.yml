@@ -98,10 +98,11 @@ jobs:
         cat /tmp/fox-branches.txt | while read br; do echo " - $br"; done
         echo "fox_branch=$(cat /tmp/fox-branches.txt | xargs)">>$GITHUB_OUTPUT
 
-    - name: Set Up Manifest
+    - name: Set Up Manifest (with branch fallback)
       run: |
         set -euo pipefail
         BRANCH_NAME="${{ github.event.inputs.MANIFEST_BRANCH }}"
+        FALLBACK_BRANCH="master"
         cd ${GITHUB_WORKSPACE}
         rm -rf OrangeFox
         mkdir -p OrangeFox
@@ -113,15 +114,22 @@ jobs:
         cd sync
         echo ">>> Checking for branch: $BRANCH_NAME"
         git fetch origin
-        if git ls-remote --heads origin "$BRANCH_NAME" | grep "$BRANCH_NAME"; then
-          git checkout -f $BRANCH_NAME || git checkout -f -b $BRANCH_NAME origin/$BRANCH_NAME
-        else
-          echo "::error::Branch '$BRANCH_NAME' not found in OrangeFox repo. Here are available branches:"
-          git branch -r
-          exit 1
-        fi
-        python3 sync.py --group_https --branch $BRANCH_NAME
 
+        # Try main input branch first, fall back to master if missing
+        if git ls-remote --heads origin "$BRANCH_NAME" | grep "$BRANCH_NAME"; then
+          echo "✓ Branch $BRANCH_NAME found. Checking out."
+          git checkout -f $BRANCH_NAME || git checkout -f -b $BRANCH_NAME origin/$BRANCH_NAME
+          SYNC_BRANCH="$BRANCH_NAME"
+        else
+          echo "::warning::Branch '$BRANCH_NAME' not found. Falling back to '$FALLBACK_BRANCH'."
+          git checkout -f $FALLBACK_BRANCH || git checkout -f -b $FALLBACK_BRANCH origin/$FALLBACK_BRANCH
+          SYNC_BRANCH="$FALLBACK_BRANCH"
+        fi
+
+        # Run sync.py with the correct branch
+        echo "Using OrangeFox branch: $SYNC_BRANCH"
+        python3 sync.py --group_https --branch $SYNC_BRANCH
+        
     - name: Clone Device Tree
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox
